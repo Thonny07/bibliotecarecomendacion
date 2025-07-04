@@ -1,11 +1,10 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
-import json  # Necesario para convertir string a dict
 
-# ✅ Inicializa Firebase desde secrets de Streamlit
+# ✅ Ya no necesitas json.loads aquí
 if not firebase_admin._apps:
-    firebase_config = json.loads(st.secrets["FIREBASE_CONFIG"])  # OJO: mayúsculas aquí
+    firebase_config = st.secrets["FIREBASE_CONFIG"]  # sin json.loads
     cred = credentials.Certificate(firebase_config)
     firebase_admin.initialize_app(cred)
 
@@ -41,7 +40,7 @@ def login():
             st.session_state.vista = "registro"
             st.rerun()
 
-    # Recuperar contraseña
+    # Opción de recuperación de contraseña
     st.markdown("---")
     if st.button("¿Olvidaste tu contraseña?"):
         st.session_state.codigo_enviado = False
