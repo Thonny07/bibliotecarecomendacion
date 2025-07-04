@@ -1,0 +1,9 @@
+[server]
+headless = true
+
+[theme]
+base = "light"
+
+[general]
+pageTitle = "Biblioteca Recomendación"
+target = "inicio.py"
