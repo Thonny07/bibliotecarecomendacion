@@ -7,6 +7,9 @@ import recuperar
 import perfil
 from acciones_libros import obtener_libros_guardados
 
+# -------- DEPURACIÓN: verificar inicio --------
+st.write("🚀 App iniciando...")
+
 # -------- Configuración de página --------
 st.set_page_config(layout="wide")
 
@@ -23,26 +26,6 @@ def aplicar_tema():
                 background-color: #1e1e1e !important;
                 color: white !important;
             }
-            .stTextInput input,
-            .stNumberInput input,
-            .stSelectbox div[data-baseweb="select"] {
-                background-color: #333 !important;
-                color: white !important;
-            }
-            .stButton>button, .stDownloadButton>button {
-                background-color: #444 !important;
-                color: white !important;
-                border: none;
-            }
-            .stMarkdown, .stRadio, .stCheckbox, .stSubheader, .stTitle, .stExpanderHeader {
-                color: white !important;
-            }
-            .stExpander {
-                background-color: #2a2a2a !important;
-            }
-            .css-1v0mbdj, .css-10trblm {
-                color: white !important;
-            }
             </style>
         """, unsafe_allow_html=True)
     else:
@@ -52,25 +35,26 @@ def aplicar_tema():
                 background-color: white !important;
                 color: black !important;
             }
-            .stButton>button, .stDownloadButton>button {
-                background-color: #f0f0f0 !important;
-                color: black !important;
-                border: none;
-            }
             </style>
         """, unsafe_allow_html=True)
 
 aplicar_tema()
 
 # -------- Logo centrado --------
-logo = Image.open("logobiblioteca.png")
-st.image(logo, width=150)
+try:
+    logo = Image.open("logobiblioteca.png")
+    st.image(logo, width=150)
+except:
+    st.warning("⚠️ No se pudo cargar el logo")
 
 # -------- Estado inicial de navegación --------
 if "vista" not in st.session_state:
     st.session_state.vista = "login"
 if "usuario" not in st.session_state:
     st.session_state.usuario = None
+
+# -------- DEPURACIÓN --------
+st.write(f"📍 Vista actual: `{st.session_state.vista}`")
 
 # -------- Menú lateral si inició sesión --------
 if st.session_state.usuario and st.session_state.vista not in ["recuperar", "registro"]:
@@ -112,6 +96,7 @@ if st.session_state.usuario and st.session_state.vista not in ["recuperar", "reg
 
 # -------- Control de navegación --------
 if st.session_state.vista == "login":
+    st.write("🔐 Cargando login...")
     acceso, usuario = login.login()
     if acceso:
         st.session_state.usuario = usuario
@@ -119,19 +104,24 @@ if st.session_state.vista == "login":
         st.rerun()
 
 elif st.session_state.vista == "registro":
+    st.write("📝 Cargando registro...")
     registro.registrar_usuario()
 
 elif st.session_state.vista == "recuperar":
+    st.write("📩 Cargando recuperación...")
     recuperar.recuperar_contrasena()
 
 elif st.session_state.vista == "inicio":
+    st.write("🏠 Cargando inicio...")
     inicio.pantalla_inicio(st.session_state.usuario)
 
 elif st.session_state.vista == "perfil":
+    st.write("👤 Cargando perfil...")
     perfil.mostrar_perfil(st.session_state.usuario)
 
 elif st.session_state.vista == "guardados":
     st.title("📌 Mis libros guardados")
+    st.write("📦 Cargando libros guardados...")
 
     libros = obtener_libros_guardados(st.session_state.usuario["correo"])
 
