@@ -1,11 +1,14 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
+import json
 
-# Inicializa Firebase solo una vez
+# Inicializa Firebase solo una vez usando los secrets de Streamlit
 if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase_config.json")
+    firebase_config = json.loads(st.secrets["FIREBASE_CONFIG"])  # 🔐 Carga segura desde Streamlit
+    cred = credentials.Certificate(firebase_config)
     firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 
 # ---------- LOGIN ----------
