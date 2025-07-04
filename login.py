@@ -2,11 +2,20 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# ✅ Ya no necesitas json.loads aquí
+
+# ---------- INICIALIZAR FIREBASE ----------
 if not firebase_admin._apps:
-    firebase_config = st.secrets["FIREBASE_CONFIG"]  # sin json.loads
-    cred = credentials.Certificate(firebase_config)
-    firebase_admin.initialize_app(cred)
+    try:
+        firebase_config = st.secrets["FIREBASE_CONFIG"]
+
+        # 🔍 Verificar tipo de dato (solo para depuración, puedes eliminarlo luego)
+        print("Tipo de FIREBASE_CONFIG:", type(firebase_config))  # Esperado: <class 'dict'>
+
+        cred = credentials.Certificate(firebase_config)
+        firebase_admin.initialize_app(cred)
+    except Exception as e:
+        st.error("❌ Error al conectar con Firebase. Verifica tu secrets.toml.")
+        st.stop()
 
 db = firestore.client()
 
