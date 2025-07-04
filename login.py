@@ -1,20 +1,19 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
-
+import json  # Necesario para convertir el string del secret
 
 # ---------- INICIALIZAR FIREBASE ----------
 if not firebase_admin._apps:
     try:
-        firebase_config = st.secrets["FIREBASE_CONFIG"]
-
-        # 🔍 Verificar tipo de dato (solo para depuración, puedes eliminarlo luego)
-        print("Tipo de FIREBASE_CONFIG:", type(firebase_config))  # Esperado: <class 'dict'>
+        # Obtener el secreto como string y convertirlo a diccionario
+        firebase_config_str = st.secrets["FIREBASE_CONFIG"]
+        firebase_config = json.loads(firebase_config_str)
 
         cred = credentials.Certificate(firebase_config)
         firebase_admin.initialize_app(cred)
     except Exception as e:
-        st.error("❌ Error al conectar con Firebase. Verifica tu secrets.toml.")
+        st.error(f"❌ Error al conectar con Firebase: {e}")
         st.stop()
 
 db = firestore.client()
@@ -22,7 +21,7 @@ db = firestore.client()
 # ---------- LOGIN ----------
 def login():
     st.subheader("🔐 Iniciar sesión")
-    
+
     correo = st.text_input("Correo electrónico")
     contrasena = st.text_input("Contraseña", type="password")
 

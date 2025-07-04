@@ -2,10 +2,13 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
+import json  # Necesario para convertir el secret
 
 # Inicializa Firebase solo una vez
 if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase_config.json")
+    firebase_config_str = st.secrets["FIREBASE_CONFIG"]
+    firebase_config = json.loads(firebase_config_str)
+    cred = credentials.Certificate(firebase_config)
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 

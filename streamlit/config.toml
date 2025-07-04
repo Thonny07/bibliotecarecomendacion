@@ -1,0 +1,12 @@
+[server]
+headless = true
+
+[theme]
+base = "light"
+
+[global]
+showWarningOnDirectExecution = false
+
+[general]
+# Indica el archivo principal (entrypoint)
+mainPage = "main.py"
