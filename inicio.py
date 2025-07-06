@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import random
 
-# Inicializar Firebase si aún no está
+# Inicializar Firebase
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase_config.json")
     firebase_admin.initialize_app(cred)
@@ -30,32 +30,34 @@ def aplicar_tema_estilo():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
-    borde_input = "#cccccc" if modo_oscuro else "#444444"
-
+    borde_input = "#ffffff" if modo_oscuro else "#44bba4"
     st.markdown(f"""
         <style>
         html, body, .stApp {{
-            background-color: {fondo} !important;
-            color: {texto} !important;
+            background-color: {fondo};
+            color: {texto};
         }}
-        input, textarea, select {{
-            background-color: {fondo} !important;
-            color: {texto} !important;
-            border: 1px solid {borde_input} !important;
-        }}
-        .stTextInput > div > div > input {{
-            background-color: {fondo} !important;
-            color: {texto} !important;
+        .stTextInput input, .stTextArea textarea, .stSelectbox select, .stRadio div {{
+            background-color: {fondo};
+            color: {texto};
+            border: 1px solid {borde_input};
+            border-radius: 8px;
+            padding: 8px;
         }}
         .stSidebar {{
-            background-color: #a2ded0 !important;
+            background-color: #a2ded0;
+        }}
+        .recomendacion-container {{
+            background-color: rgba(200, 200, 200, 0.1);
+            padding: 10px;
+            border-radius: 8px;
         }}
         button {{
             background-color: #44bba4 !important;
             color: white !important;
             border: none;
-            padding: 8px 16px;
             border-radius: 5px;
+            padding: 8px 16px;
             cursor: pointer;
         }}
         button:hover {{
@@ -64,31 +66,27 @@ def aplicar_tema_estilo():
         </style>
     """, unsafe_allow_html=True)
 
-
 def pantalla_inicio(usuario):
     aplicar_tema_estilo()
 
-    # Logo y título
     st.markdown("""
-        <div style='text-align:center'>
-            <img src='https://i.imgur.com/C9ZCjBz.png' width='100' style='margin-bottom: 0;'/>
-            <h1 style='margin-top: 0;'>Biblioteca Alejandría</h1>
+        <div style='text-align:center;'>
+            <img src='logobiblioteca.png' width='100'/>
+            <h1 style='margin: 5px;'>Biblioteca Alejandria</h1>
         </div>
     """, unsafe_allow_html=True)
 
-    # Tema botón icono
     with st.sidebar:
         if "modo_oscuro" not in st.session_state:
             st.session_state.modo_oscuro = False
         modo = st.session_state.modo_oscuro
-        icono = "💡" if not modo else "💤"
-        if st.button("Cambiar tema"):
+        foco = "🔆" if not modo else "🌙"
+        if st.button(f"{foco} Cambiar tema"):
             st.session_state.modo_oscuro = not modo
             st.rerun()
 
-    # Contenido principal
     st.subheader(f"Bienvenido, {usuario['nombre']} {usuario['apellido']}")
-    consulta = st.text_input("Buscar libros por título, tema o autor")
+    consulta = st.text_input("Buscar libros")
     col1, col2 = st.columns(2)
     idioma = col1.selectbox("Idioma", ["Todos", "es", "en", "fr", "de", "it", "pt"])
     pais = col2.selectbox("País", ["Todos", "PE", "US", "ES", "FR", "AR"])
@@ -100,12 +98,12 @@ def pantalla_inicio(usuario):
         temas = ["historia", "filosofía", "ciencia", "novela", "fantasía", "autoayuda"]
         sugerencias = buscar_libros_api(random.choice(temas), idioma="Todos", pais="Todos")[:5]
         for s in sugerencias:
-            st.markdown(f"<strong>{s['titulo']}</strong>", unsafe_allow_html=True)
+            st.markdown(f"<div class='recomendacion-container'><strong>{s['titulo']}</strong>", unsafe_allow_html=True)
             if s.get("imagen"):
                 st.image(s["imagen"], width=100)
             if s.get("enlace"):
                 st.markdown(f"<a href='{s['enlace']}' target='_blank'><button>Leer libro</button></a>", unsafe_allow_html=True)
-            st.markdown("<hr>", unsafe_allow_html=True)
+            st.markdown("</div><br>", unsafe_allow_html=True)
 
     with col_izq:
         if consulta:
@@ -122,11 +120,9 @@ def pantalla_inicio(usuario):
                         st.markdown(f"<strong>Autores:</strong> {libro.get('autores', 'Desconocido')}", unsafe_allow_html=True)
                         with st.expander("Descripción"):
                             st.write(libro.get("descripcion", "Sin descripción"))
-
-                        if st.button(f"Guardar para leer después", key=f"guardar_{idx}"):
+                        if st.button("Guardar para leer después", key=f"guardar_{idx}"):
                             guardar_libro_para_usuario(usuario["correo"], libro)
                             st.success("Libro guardado exitosamente.")
-
                         if libro.get("enlace"):
                             st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
@@ -145,7 +141,6 @@ def pantalla_inicio(usuario):
                                 if r["comentario"]:
                                     st.markdown(f"<blockquote>{r['comentario']}</blockquote>", unsafe_allow_html=True)
 
-    # Recomendaciones personalizadas
     st.markdown("<h3>Recomendaciones para ti</h3>", unsafe_allow_html=True)
     edad = usuario.get("edad", 25)
     genero = usuario.get("genero", "Otro")
