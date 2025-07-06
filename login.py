@@ -54,7 +54,7 @@ def inject_custom_css(modo_oscuro):
         color: {text_color}; /* Global text color */
     }}
 
-    /* Remove Streamlit's default padding on the main content block */
+    /* Remove Streamlit's default padding on the main content block to allow full centering */
     .main .block-container {{
         padding-top: 0rem;
         padding-bottom: 0rem;
@@ -65,23 +65,24 @@ def inject_custom_css(modo_oscuro):
         min-height: 100vh;
     }}
 
-    /* The Login Card Container */
-    /* Targeting a more general Streamlit container element or a custom div */
-    .st-emotion-cache-nahz7x {{ /* This is a common Streamlit container class */
+    /* The Login Card Container (st.container default class) */
+    /* Adjust this class name if inspection shows a different one for st.container */
+    .st-emotion-cache-nahz7x {{ /* Common class for the st.container wrapper */
         background-color: {card_bg_color};
-        padding: 40px;
+        padding: 40px; /* Internal padding for the card */
         border-radius: 12px;
         box-shadow: 0 10px 30px {shadow_color};
         width: 100%;
         max-width: 450px; /* Control card width */
         transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        /* Use flexbox for internal vertical spacing and alignment */
         display: flex;
         flex-direction: column;
-        align-items: center; /* Center contents of the card */
-        gap: 15px; /* Default gap between direct children for better spacing */
+        align-items: center; /* Center items horizontally within the card */
+        gap: 20px; /* Space between main elements inside the card */
     }}
     
-    /* Specific overrides for common Streamlit components */
+    /* Input field styling - Avoid manipulating width/height/padding here */
     .stTextInput > label {{
         display: none; /* Hide default labels */
     }}
@@ -89,11 +90,10 @@ def inject_custom_css(modo_oscuro):
         background-color: {input_bg_color};
         border: 1px solid {input_border_color};
         border-radius: 8px;
-        padding: 10px 12px; /* Slightly less padding to reduce space */
         font-size: 16px;
         color: {text_color};
-        width: 100%;
-        box-sizing: border-box;
+        /* NO FIXED PADDING/WIDTH HERE - LET STREAMLIT HANDLE IT */
+        /* Use transition for smooth color changes */
         transition: all 0.2s ease;
     }}
     .stTextInput > div > div > input::placeholder {{
@@ -105,20 +105,18 @@ def inject_custom_css(modo_oscuro):
         box-shadow: 0 0 0 2px {accent_color}40;
     }}
 
-    /* Buttons general style */
+    /* Buttons general style - Avoid manipulating width/height/padding here */
     .stButton > button {{
         background-color: {accent_color};
         color: white;
         border: none;
         border-radius: 8px;
-        padding: 10px 15px; /* Consistent padding */
         font-size: 16px;
         font-weight: 600;
-        width: 100%;
         cursor: pointer;
         transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
         box-shadow: 0 4px 10px {accent_color}40;
-        margin: 0 !important; /* Eliminate extra margins from Streamlit defaults */
+        /* NO FIXED PADDING/WIDTH/MARGIN HERE - LET STREAMLIT HANDLE IT */
     }}
 
     .stButton > button:hover {{
@@ -126,19 +124,27 @@ def inject_custom_css(modo_oscuro):
         box-shadow: 0 6px 15px {accent_color}60;
     }}
 
-    /* Adjust columns for buttons to remove excessive gap */
-    .st-emotion-cache-ocqkz7.e1f1d6gn4 {{ /* Targets the div containing the two-column button layout */
-        gap: 15px !important; /* Smaller gap between login and register buttons */
+    /* Adjust columns for buttons to control gap */
+    /* Target the specific column container */
+    [data-testid="stHorizontalBlock"] {{
+        width: 100%; /* Ensure columns take full width within the card */
+        justify-content: space-between; /* Distribute content */
+        gap: 15px; /* Smaller gap between login and register buttons */
+    }}
+    /* This rule ensures buttons inside columns take full width of their column */
+    [data-testid="stHorizontalBlock"] > div > div > button {{
+        width: 100%;
     }}
 
     /* Specific style for 'Registrarse' button in columns */
-    .st-emotion-cache-ocqkz7.e1f1d6gn4 > div:last-child .stButton > button {{
+    /* This targets the button in the second column more reliably */
+    [data-testid="stHorizontalBlock"] > div:last-child .stButton > button {{
         background-color: transparent;
         color: {accent_color};
         border: 1px solid {accent_color};
         box-shadow: none;
     }}
-    .st-emotion-cache-ocqkz7.e1f1d6gn4 > div:last-child .stButton > button:hover {{
+    [data-testid="stHorizontalBlock"] > div:last-child .stButton > button:hover {{
         background-color: {accent_color}20;
         box-shadow: none;
         color: {accent_color};
@@ -150,11 +156,9 @@ def inject_custom_css(modo_oscuro):
         color: {text_color}88 !important;
         border: none !important;
         box-shadow: none !important;
-        padding: 5px 10px !important; /* Smaller padding for link style */
         font-size: 14px !important;
         text-decoration: underline;
-        width: auto !important; /* Size to content */
-        margin-top: 10px !important; /* Space above */
+        /* NO FIXED PADDING/WIDTH/MARGIN HERE - LET STREAMLIT HANDLE IT */
         transition: color 0.2s ease;
     }}
     .forgot-password-link-btn > button:hover {{
@@ -167,9 +171,10 @@ def inject_custom_css(modo_oscuro):
     .header-content {{
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 100%;
-        margin-bottom: 20px; /* Space below header */
+        justify-content: center; /* Center header content */
+        width: 100%; /* Take full width of parent container */
+        gap: 15px; /* Space between logo and title */
+        margin-bottom: 10px; /* Space below header content */
     }}
 
     .app-logo {{
@@ -177,14 +182,13 @@ def inject_custom_css(modo_oscuro):
         height: 50px;
         border-radius: 50%;
         object-fit: cover; /* Ensures image fits well */
-        margin-right: 15px; /* Space between logo and title */
     }}
 
     .app-title {{
         font-size: 28px;
         font-weight: 700;
         color: {text_color};
-        margin: 0;
+        margin: 0; /* Remove default margins */
     }}
     
     /* Login heading */
@@ -196,9 +200,11 @@ def inject_custom_css(modo_oscuro):
         display: flex;
         align-items: center;
         gap: 8px;
+        width: 100%; /* Ensure it spans width within card */
+        justify-content: center; /* Center the heading text itself */
     }}
 
-    /* Theme toggle button specific styling */
+    /* Theme toggle button styling (now within a column) */
     .theme-toggle-btn > button {{
         background-color: {input_bg_color};
         color: {text_color};
@@ -207,7 +213,7 @@ def inject_custom_css(modo_oscuro):
         padding: 8px 12px;
         font-size: 14px;
         gap: 5px;
-        width: auto;
+        width: auto; /* Allow Streamlit to determine width */
         box-shadow: none;
         transition: all 0.2s ease;
     }}
@@ -217,14 +223,14 @@ def inject_custom_css(modo_oscuro):
         color: {text_color};
     }}
 
-    /* Hide the default separator */
+    /* Hide the default separator if st.markdown("---") is used */
     hr {{
         display: none;
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# ---------- LOGIN FUNCTION ----------
+# ---------- LOGIN FUNCTION (Integrates design but retains original core logic) ----------
 def login():
     # Initialize session state for dark mode if not already present
     if "modo_oscuro" not in st.session_state:
@@ -235,51 +241,50 @@ def login():
 
     # Set page config once at the beginning
     st.set_page_config(
-        layout="centered",
+        layout="centered", # Best for a single form card
         initial_sidebar_state="collapsed",
         page_title="Biblioteca Alejandría - Iniciar Sesión"
     )
 
     # --- Layout and Content ---
     # Use st.container for the card effect. Streamlit applies its own internal class.
-    # We will target this class with CSS for the card effect.
-    with st.container(): # This will become the 'login-card-container' visually
-
+    # This acts as the visual 'card'
+    with st.container():
         # Header Section (Logo, Title, and Theme Button)
-        header_area = st.empty() # Placeholder for the header and theme toggle
-        with header_area.container():
-            col_logo, col_title, col_theme_toggle = st.columns([1, 4, 1.5]) # Adjusted ratios
+        # We will use columns to lay these out horizontally.
+        # The 'app-logo' class will size the image correctly.
+        col_logo, col_title, col_theme_toggle = st.columns([1, 3, 1.2]) # Adjusted ratios
 
-            with col_logo:
-                # Replace with actual image path or URL if you have one
-                st.image("https://via.placeholder.com/50", use_column_width=False, output_format="PNG", caption="") # Placeholder image
-                # OR: st.markdown('<img src="your_logo_url_here.png" class="app-logo">', unsafe_allow_html=True)
-            with col_title:
-                st.markdown('<p class="app-title">Biblioteca Alejandría</p>', unsafe_allow_html=True)
-            with col_theme_toggle:
-                st.markdown('<div class="theme-toggle-btn">', unsafe_allow_html=True)
-                theme_icon = "☀️" if not st.session_state.modo_oscuro else "🌙"
-                if st.button(f"{theme_icon} Tema", key="theme_toggle_main_btn"): # Unique key
-                    st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-                    st.rerun() # Rerun to apply theme changes
-                st.markdown('</div>', unsafe_allow_html=True)
+        with col_logo:
+            # Using st.image for robust logo display. Replace URL with your actual logo path/URL.
+            # You can also use a local file: st.image("logo.png", use_column_width=False, width=50)
+            st.image("https://via.placeholder.com/50/007BFF/FFFFFF?text=Logo", use_column_width=False, output_format="PNG", caption="", clamp=True)
 
-        # Login Heading
+        with col_title:
+            st.markdown('<p class="app-title">Biblioteca Alejandría</p>', unsafe_allow_html=True)
+
+        with col_theme_toggle:
+            st.markdown('<div class="theme-toggle-btn">', unsafe_allow_html=True) # Apply CSS class for styling
+            theme_icon = "☀️" if not st.session_state.modo_oscuro else "🌙"
+            if st.button(f"{theme_icon} Tema", key="theme_toggle_btn_main_final"): # UNIQUE KEY
+                st.session_state.modo_oscuro = not st.session_state.modo_oscuro
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # Login Heading (centered by flexbox in card container)
         st.markdown('<h3 class="login-heading">🔐 Iniciar sesión</h3>', unsafe_allow_html=True)
-        # st.markdown('<div style="height:10px;"></div>', unsafe_allow_html=True) # Small spacer
 
-        # Input Fields (preserving original Streamlit calls and functionality)
-        correo = st.text_input("Correo electrónico", placeholder="Correo electrónico", key="login_email_input_final")
-        contrasena = st.text_input("Contraseña", placeholder="Contraseña", type="password", key="login_password_input_final")
+        # Input Fields (original logic)
+        # The 'placeholder' argument adds the hint text directly.
+        correo = st.text_input("Correo electrónico", placeholder="Correo electrónico", key="login_email_input_final_v2") # UNIQUE KEY
+        contrasena = st.text_input("Contraseña", placeholder="Contraseña", type="password", key="login_password_input_final_v2") # UNIQUE KEY
 
+        col1, col2 = st.columns(2) # Original column structure for buttons
         acceso = False
         usuario = None
 
-        # Two columns for Login and Register buttons
-        col_btn_login, col_btn_register = st.columns(2)
-
-        with col_btn_login:
-            if st.button("Iniciar sesión", key="login_submit_btn_final"): # UNIQUE KEY
+        with col1:
+            if st.button("Iniciar sesión", key="login_submit_btn_final_v2"): # UNIQUE KEY
                 doc = db.collection("usuarios").document(correo).get()
                 if doc.exists:
                     datos = doc.to_dict()
@@ -287,73 +292,71 @@ def login():
                         st.success(f"Bienvenido, {datos['nombre']} 👋")
                         acceso = True
                         usuario = datos
-                        st.session_state.logged_in = True
+                        st.session_state.logged_in = True # Set session state
                         st.session_state.logged_user_name = datos['nombre']
-                        st.session_state.vista = "dashboard" # Redirect
-                        st.rerun()
+                        st.session_state.vista = "dashboard" # Navigate
+                        st.rerun() # Trigger a rerun to change view
                     else:
                         st.error("❌ Contraseña incorrecta")
                 else:
                     st.error("❌ Usuario no encontrado")
 
-        with col_btn_register:
-            if st.button("Registrarse", key="register_button_final"): # UNIQUE KEY
+        with col2:
+            if st.button("Registrarse", key="register_button_final_v2"): # UNIQUE KEY
                 st.session_state.vista = "registro"
-                st.rerun()
+                st.rerun() # Trigger a rerun to change view
 
-        # Small spacer between buttons and forgot password link
-        # st.markdown('<div style="height:15px;"></div>', unsafe_allow_html=True)
-
-        # Forgot password button (unique key, styled as a link)
-        st.markdown('<div class="forgot-password-link-btn">', unsafe_allow_html=True)
-        if st.button("¿Olvidaste tu contraseña?", key="forgot_password_button_final"): # UNIQUE KEY
+        # Forgot password button (original logic)
+        # st.markdown("---") # Removed this for cleaner look, as requested
+        st.markdown('<div class="forgot-password-link-btn">', unsafe_allow_html=True) # Apply CSS class
+        if st.button("¿Olvidaste tu contraseña?", key="forgot_password_button_final_v2"): # UNIQUE KEY
             st.session_state.codigo_enviado = False
             st.session_state.codigo_verificacion = ""
             st.session_state.correo_recuperar = ""
             st.session_state.vista = "recuperar"
-            st.rerun()
+            st.rerun() # Trigger a rerun to change view
         st.markdown('</div>', unsafe_allow_html=True)
 
     return acceso, usuario
 
 # ---------- MAIN APPLICATION FLOW (UNCHANGED FUNCTIONALITY) ----------
 if __name__ == "__main__":
+    # Initialize session state variables if they don't exist
     if "vista" not in st.session_state:
         st.session_state.vista = "login"
-    
-    # Initialize logged_in state
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
+    if "logged_user_name" not in st.session_state:
+        st.session_state.logged_user_name = ""
 
-    # Conditional rendering based on view
+    # Conditional rendering based on the current view
     if st.session_state.vista == "login":
         login()
     elif st.session_state.vista == "registro":
         st.title("Página de Registro")
         st.write("Aquí iría el formulario de registro. (Implementa tu lógica aquí)")
-        if st.button("Volver al Login", key="back_from_register_page_final"):
+        if st.button("Volver al Login", key="back_from_register_page_final_v2"): # UNIQUE KEY
             st.session_state.vista = "login"
             st.rerun()
     elif st.session_state.vista == "recuperar":
         st.title("Recuperar Contraseña")
         st.write("Aquí iría el proceso para recuperar la contraseña. (Implementa tu lógica aquí)")
-        if st.button("Volver al Login", key="back_from_recovery_page_final"):
+        if st.button("Volver al Login", key="back_from_recovery_page_final_v2"): # UNIQUE KEY
             st.session_state.vista = "login"
             st.rerun()
     elif st.session_state.vista == "dashboard":
-        # Ensure user is logged in to see dashboard
+        # Ensure user is logged in to see dashboard, otherwise redirect
         if st.session_state.get('logged_in'):
             st.title(f"🎉 Bienvenido al Dashboard, {st.session_state.get('logged_user_name', 'usuario')}!")
             st.write("¡Has iniciado sesión exitosamente!")
             st.write("Este es tu espacio personal.")
-            if st.button("Cerrar Sesión", key="logout_dashboard_final"):
+            if st.button("Cerrar Sesión", key="logout_dashboard_final_v2"): # UNIQUE KEY
                 del st.session_state.logged_in
                 if 'logged_user_name' in st.session_state:
                     del st.session_state.logged_user_name
                 st.session_state.vista = "login"
                 st.rerun()
         else:
-            # If somehow they reach dashboard without being logged in, redirect to login
             st.warning("No has iniciado sesión. Por favor, inicia sesión para acceder al dashboard.")
             st.session_state.vista = "login"
             st.rerun()
