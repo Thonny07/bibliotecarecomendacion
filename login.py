@@ -17,140 +17,165 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 def login():
-    # Configuración
-    verde_agua = "#44bba4"
-    fondo = "#ffffff"
-    texto = "#000000"
-
     st.set_page_config(layout="wide")  # Pantalla completa
 
-    st.markdown(f"""
+    st.markdown("""
     <style>
-    html, body, .stApp {{
-        height: 100vh;
-        overflow: hidden;
+    html, body, .stApp {
         margin: 0;
         padding: 0;
-        background-color: {fondo};
-        color: {texto};
-        font-family: 'Segoe UI', sans-serif;
-    }}
-
-    .centered {{
         height: 100vh;
+        overflow: hidden;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .container {
         display: flex;
-        flex-direction: column;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .left {
+        flex: 6;
+        background: linear-gradient(to right, #7b2ff7, #f107a3);
+        color: white;
+        display: flex;
         justify-content: center;
         align-items: center;
-    }}
+        flex-direction: column;
+        padding: 40px;
+        text-align: center;
+    }
 
-    .form-box {{
+    .left h1 {
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+
+    .left p {
+        font-size: 16px;
+        max-width: 400px;
+    }
+
+    .right {
+        flex: 4;
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .form-box {
         width: 100%;
         max-width: 350px;
         text-align: center;
-        padding: 30px;
-    }}
+    }
 
-    .form-box h3 {{
-        margin-top: 10px;
+    .form-box h3 {
         margin-bottom: 25px;
-        color: {texto};
-    }}
+        font-weight: 600;
+        color: #333;
+    }
 
-    .stTextInput input {{
-        background-color: #f9f9f9;
+    .stTextInput input {
+        background-color: #f0f0f0;
         border: 1px solid #ccc;
-        border-radius: 30px;
-        padding: 12px 15px;
+        border-radius: 25px;
+        padding: 12px 20px;
         width: 100%;
-    }}
+    }
 
-    .stButton > button {{
-        background-color: {verde_agua};
+    .stButton > button {
+        background: linear-gradient(to right, #7b2ff7, #f107a3);
         color: white;
         font-weight: bold;
         border: none;
-        border-radius: 30px;
+        border-radius: 25px;
         padding: 10px;
         width: 100%;
-        margin-top: 10px;
-    }}
+        margin-top: 15px;
+    }
 
-    .stButton > button:hover {{
-        background-color: #379d8e;
-    }}
+    .stButton > button:hover {
+        background: linear-gradient(to right, #651ee0, #c9068e);
+    }
 
-    .extra-buttons {{
+    .extra-buttons {
         display: flex;
         justify-content: space-between;
         margin-top: 10px;
-    }}
+    }
 
-    .theme-button {{
+    .extra-buttons button {
+        font-size: 13px;
+    }
+
+    .theme-btn {
         position: absolute;
-        top: 15px;
-        right: 25px;
-        z-index: 9999;
-    }}
+        top: 10px;
+        right: 20px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-    # Botón de tema
-    st.markdown('<div class="theme-button">', unsafe_allow_html=True)
+    # Botón de cambio de tema arriba a la derecha
+    st.markdown('<div class="theme-btn">', unsafe_allow_html=True)
     icono = "💡" if not st.session_state.get("modo_oscuro", False) else "🔦"
     if st.button(icono, key="tema_btn"):
         st.session_state.modo_oscuro = not st.session_state.get("modo_oscuro", False)
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Centro absoluto
-    st.markdown('<div class="centered">', unsafe_allow_html=True)
+    # Contenedor principal
+    st.markdown('<div class="container">', unsafe_allow_html=True)
 
-    with st.container():
-        st.markdown('<div class="form-box">', unsafe_allow_html=True)
+    # Lado izquierdo con mensaje de bienvenida
+    st.markdown("""
+        <div class="left">
+            <h1>Welcome to website</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.</p>
+        </div>
+    """, unsafe_allow_html=True)
 
-        try:
-            st.image("logobiblioteca.png", width=100)
-        except:
-            st.warning("⚠️ No se pudo cargar el logo")
+    # Lado derecho: formulario de login
+    st.markdown('<div class="right"><div class="form-box">', unsafe_allow_html=True)
 
-        st.markdown("<h3>USER LOGIN</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>USER LOGIN</h3>", unsafe_allow_html=True)
 
-        correo = st.text_input("", placeholder="Correo electrónico")
-        contrasena = st.text_input("", placeholder="Contraseña", type="password")
+    correo = st.text_input("", placeholder="Correo electrónico")
+    contrasena = st.text_input("", placeholder="Contraseña", type="password")
 
-        acceso = False
-        usuario = None
+    acceso = False
+    usuario = None
 
-        if st.button("Iniciar sesión"):
-            doc = db.collection("usuarios").document(correo).get()
-            if doc.exists:
-                datos = doc.to_dict()
-                if datos["contrasena"] == contrasena:
-                    st.success(f"Bienvenido, {datos['nombre']}")
-                    acceso = True
-                    usuario = datos
-                else:
-                    st.error("❌ Contraseña incorrecta")
+    if st.button("Login"):
+        doc = db.collection("usuarios").document(correo).get()
+        if doc.exists:
+            datos = doc.to_dict()
+            if datos["contrasena"] == contrasena:
+                st.success(f"Bienvenido, {datos['nombre']}")
+                acceso = True
+                usuario = datos
             else:
-                st.error("❌ Usuario no encontrado")
+                st.error("❌ Contraseña incorrecta")
+        else:
+            st.error("❌ Usuario no encontrado")
 
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("¿Olvidaste tu contraseña?"):
-                st.session_state.codigo_enviado = False
-                st.session_state.codigo_verificacion = ""
-                st.session_state.correo_recuperar = ""
-                st.session_state.vista = "recuperar"
-                st.rerun()
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("¿Olvidaste tu contraseña?"):
+            st.session_state.codigo_enviado = False
+            st.session_state.codigo_verificacion = ""
+            st.session_state.correo_recuperar = ""
+            st.session_state.vista = "recuperar"
+            st.rerun()
 
-        with col2:
-            if st.button("Registrarse"):
-                st.session_state.vista = "registro"
-                st.rerun()
+    with col2:
+        if st.button("Registrarse"):
+            st.session_state.vista = "registro"
+            st.rerun()
 
-        st.markdown('</div>', unsafe_allow_html=True)  # cierra form-box
-
-    st.markdown('</div>', unsafe_allow_html=True)  # cierra centered
+    st.markdown('</div></div>', unsafe_allow_html=True)  # Cierra form-box y right
+    st.markdown('</div>', unsafe_allow_html=True)  # Cierra container
 
     return acceso, usuario
