@@ -17,12 +17,12 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 def login():
+    # Configuración
     verde_agua = "#44bba4"
-    degradado = "linear-gradient(to right, #6a11cb, #2575fc)"
-    fondo_claro = "#ffffff"
-    texto_claro = "#000000"
+    fondo = "#ffffff"
+    texto = "#000000"
 
-    st.set_page_config(layout="wide")  # 💡 Para pantalla completa sin scroll
+    st.set_page_config(layout="wide")  # Pantalla completa
 
     st.markdown(f"""
     <style>
@@ -31,31 +31,15 @@ def login():
         overflow: hidden;
         margin: 0;
         padding: 0;
+        background-color: {fondo};
+        color: {texto};
+        font-family: 'Segoe UI', sans-serif;
     }}
 
-    .container {{
-        display: flex;
-        flex-direction: row;
+    .centered {{
         height: 100vh;
-        width: 100vw;
-    }}
-
-    .left {{
-        flex: 6;
-        overflow: hidden;
-    }}
-
-    .left img {{
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }}
-
-    .right {{
-        flex: 4;
-        background-color: {fondo_claro};
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
     }}
@@ -64,15 +48,17 @@ def login():
         width: 100%;
         max-width: 350px;
         text-align: center;
+        padding: 30px;
     }}
 
     .form-box h3 {{
+        margin-top: 10px;
         margin-bottom: 25px;
-        color: {texto_claro};
+        color: {texto};
     }}
 
     .stTextInput input {{
-        background-color: #f4f4f4;
+        background-color: #f9f9f9;
         border: 1px solid #ccc;
         border-radius: 30px;
         padding: 12px 15px;
@@ -80,7 +66,7 @@ def login():
     }}
 
     .stButton > button {{
-        background-image: {degradado};
+        background-color: {verde_agua};
         color: white;
         font-weight: bold;
         border: none;
@@ -91,14 +77,12 @@ def login():
     }}
 
     .stButton > button:hover {{
-        background-image: linear-gradient(to right, #5b0eb3, #1f63e0);
+        background-color: #379d8e;
     }}
 
-    .extras {{
+    .extra-buttons {{
         display: flex;
         justify-content: space-between;
-        font-size: 13px;
-        color: #555;
         margin-top: 10px;
     }}
 
@@ -111,7 +95,7 @@ def login():
     </style>
     """, unsafe_allow_html=True)
 
-    # Botón de tema en la esquina
+    # Botón de tema
     st.markdown('<div class="theme-button">', unsafe_allow_html=True)
     icono = "💡" if not st.session_state.get("modo_oscuro", False) else "🔦"
     if st.button(icono, key="tema_btn"):
@@ -119,57 +103,54 @@ def login():
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Estructura dividida
-    st.markdown('<div class="container">', unsafe_allow_html=True)
+    # Centro absoluto
+    st.markdown('<div class="centered">', unsafe_allow_html=True)
 
-    # Izquierda: imagen portada
-    st.markdown('<div class="left">', unsafe_allow_html=True)
-    try:
-        st.image("portadalogin.png", use_column_width=True)
-    except:
-        st.warning("⚠️ No se pudo cargar la imagen")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container():
+        st.markdown('<div class="form-box">', unsafe_allow_html=True)
 
-    # Derecha: login form
-    st.markdown('<div class="right"><div class="form-box">', unsafe_allow_html=True)
+        try:
+            st.image("logobiblioteca.png", width=100)
+        except:
+            st.warning("⚠️ No se pudo cargar el logo")
 
-    st.markdown("<h3>USER LOGIN</h3>", unsafe_allow_html=True)
+        st.markdown("<h3>USER LOGIN</h3>", unsafe_allow_html=True)
 
-    correo = st.text_input("", placeholder="Correo electrónico")
-    contrasena = st.text_input("", placeholder="Contraseña", type="password")
+        correo = st.text_input("", placeholder="Correo electrónico")
+        contrasena = st.text_input("", placeholder="Contraseña", type="password")
 
-    acceso = False
-    usuario = None
+        acceso = False
+        usuario = None
 
-    if st.button("Login"):
-        doc = db.collection("usuarios").document(correo).get()
-        if doc.exists:
-            datos = doc.to_dict()
-            if datos["contrasena"] == contrasena:
-                st.success(f"Bienvenido, {datos['nombre']}")
-                acceso = True
-                usuario = datos
+        if st.button("Iniciar sesión"):
+            doc = db.collection("usuarios").document(correo).get()
+            if doc.exists:
+                datos = doc.to_dict()
+                if datos["contrasena"] == contrasena:
+                    st.success(f"Bienvenido, {datos['nombre']}")
+                    acceso = True
+                    usuario = datos
+                else:
+                    st.error("❌ Contraseña incorrecta")
             else:
-                st.error("❌ Contraseña incorrecta")
-        else:
-            st.error("❌ Usuario no encontrado")
+                st.error("❌ Usuario no encontrado")
 
-    # Extras
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("¿Olvidaste tu contraseña?"):
-            st.session_state.codigo_enviado = False
-            st.session_state.codigo_verificacion = ""
-            st.session_state.correo_recuperar = ""
-            st.session_state.vista = "recuperar"
-            st.rerun()
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("¿Olvidaste tu contraseña?"):
+                st.session_state.codigo_enviado = False
+                st.session_state.codigo_verificacion = ""
+                st.session_state.correo_recuperar = ""
+                st.session_state.vista = "recuperar"
+                st.rerun()
 
-    with col2:
-        if st.button("Registrarse"):
-            st.session_state.vista = "registro"
-            st.rerun()
+        with col2:
+            if st.button("Registrarse"):
+                st.session_state.vista = "registro"
+                st.rerun()
 
-    st.markdown('</div></div>', unsafe_allow_html=True)  # form-box & right
-    st.markdown('</div>', unsafe_allow_html=True)  # container
+        st.markdown('</div>', unsafe_allow_html=True)  # cierra form-box
+
+    st.markdown('</div>', unsafe_allow_html=True)  # cierra centered
 
     return acceso, usuario
