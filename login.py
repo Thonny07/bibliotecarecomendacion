@@ -1,9 +1,9 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
-import json
+import json  # Necesario para convertir el string del secret
 
-# ---------- CONFIGURACIÓN DE PÁGINA Y ESTILO ----------
+# ---------- CONFIGURACIÓN DE DISEÑO ----------
 st.set_page_config(page_title="Login", layout="centered")
 
 st.markdown("""
@@ -44,8 +44,10 @@ st.markdown("""
 # ---------- INICIALIZAR FIREBASE ----------
 if not firebase_admin._apps:
     try:
+        # Obtener el secreto como string y convertirlo a diccionario
         firebase_config_str = st.secrets["FIREBASE_CONFIG"]
         firebase_config = json.loads(firebase_config_str)
+
         cred = credentials.Certificate(firebase_config)
         firebase_admin.initialize_app(cred)
     except Exception as e:
@@ -57,15 +59,14 @@ db = firestore.client()
 # ---------- LOGIN ----------
 def login():
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Generic_Login_Icon.svg/1200px-Generic_Login_Icon.svg.png", width=80)
-    st.markdown("### Bienvenido")
+    st.markdown("### 🔐 Iniciar sesión")
 
     correo = st.text_input("Correo electrónico")
     contrasena = st.text_input("Contraseña", type="password")
 
+    col1, col2 = st.columns(2)
     acceso = False
     usuario = None
-
-    col1, col2 = st.columns(2)
 
     with col1:
         if st.button("Iniciar sesión"):
@@ -85,15 +86,15 @@ def login():
                     else:
                         st.error("❌ Usuario no encontrado")
                 except Exception as e:
-                    st.error(f"❌ Error al acceder a la base de datos: {e}")
+                    st.error(f"❌ Error de conexión: {e}")
 
     with col2:
         if st.button("Registrarse"):
             st.session_state.vista = "registro"
             st.rerun()
 
+    # Opción de recuperación de contraseña
     st.markdown("---")
-
     if st.button("¿Olvidaste tu contraseña?"):
         st.session_state.codigo_enviado = False
         st.session_state.codigo_verificacion = ""
