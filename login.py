@@ -21,37 +21,24 @@ def login():
     acceso = False
     usuario = None
 
-    # Estilos para centrar y limitar ancho
+    # CSS para centrar y limitar ancho real del contenido
     st.markdown("""
         <style>
-        html, body, [data-testid="stAppViewContainer"] {
-            background-color: #E8F6FC;
+        body {
+            background-color: #e0f4ff;
         }
-        .main {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding-top: 3vh;
-        }
-        .centered-box {
+        .custom-box {
+            max-width: 450px;
+            margin: 5vh auto;
             background-color: white;
             border-radius: 16px;
-            padding: 2.5rem 2rem;
-            width: 50%;
-            max-width: 500px;
-            min-width: 320px;
-            margin: auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 2rem 2rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
         @media (prefers-color-scheme: dark) {
-            .centered-box {
+            .custom-box {
                 background-color: #1e1e1e;
                 color: white;
-            }
-            input, textarea {
-                background-color: #333 !important;
-                color: white !important;
-                border: 1px solid #777 !important;
             }
         }
         .login-title {
@@ -61,20 +48,19 @@ def login():
             margin-bottom: 1.5rem;
             color: #3bb3d4;
         }
-        .stTextInput>div>div>input {
-            padding: 0.4rem 0.7rem;
-            font-size: 0.95rem;
+        .stTextInput input {
+            font-size: 0.95rem !important;
+            padding: 0.4rem 0.8rem !important;
         }
         .stButton>button {
+            width: 100% !important;
+            font-size: 0.9rem !important;
+            padding: 0.5rem 1rem !important;
             background-color: #3bb3d4;
             color: white;
-            border: none;
-            padding: 0.45rem 1rem;
             border-radius: 10px;
             font-weight: bold;
-            transition: 0.3s;
-            width: 100%;
-            font-size: 0.9rem;
+            border: none;
         }
         .stButton>button:hover {
             background-color: #34a6c4;
@@ -82,14 +68,16 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
+    # Contenedor centrado
     with st.container():
-        st.markdown('<div class="centered-box">', unsafe_allow_html=True)
+        st.markdown('<div class="custom-box">', unsafe_allow_html=True)
         st.markdown('<div class="login-title">Iniciar sesión</div>', unsafe_allow_html=True)
 
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
 
-        col1, col2 = st.columns(2)
+        # Botones en columnas internas
+        col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("Iniciar sesión"):
                 doc = db.collection("usuarios").document(correo).get()
