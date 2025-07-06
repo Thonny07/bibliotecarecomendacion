@@ -25,28 +25,17 @@ def login():
     # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
-        /* OCULTAR HEADERS Y RECTÁNGULOS RESIDUALES */
-        header, footer {
-            visibility: hidden !important;
-            height: 0px !important;
-        }
+        /* Eliminar cabecera y sombras superiores de Streamlit */
+        header, footer { visibility: hidden !important; height: 0px !important; }
+        .block-container:has(> .stToolbar) { padding-top: 0rem !important; }
+        .stToolbar { display: none !important; }
 
-        /* ESTA CLASE ES LA QUE CREA ESE RECTÁNGULO NEGRO SUPERIOR */
-        .css-18ni7ap.e8zbici2, .css-1avcm0n.e8zbici2, .css-1dp5vir.e1tzin5v1 {
-            background-color: transparent !important;
-            box-shadow: none !important;
-            height: 0px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            border: none !important;
-        }
-
-        /* CONTENEDOR PRINCIPAL */
+        /* Contenedor principal centrado */
         .login-container {
             background-color: white;
             border-radius: 20px;
             padding: 2.5rem;
-            max-width: 450px;
+            max-width: 400px;
             margin: 3rem auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
@@ -64,30 +53,27 @@ def login():
             }
         }
 
-        /* LOGO */
         .logo-img {
-            width: 140px;
-            height: 140px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
             display: block;
             margin: 0 auto 1rem auto;
         }
 
-        /* TÍTULO */
         .login-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
             margin-bottom: 1.5rem;
             color: #20c997;
         }
 
-        /* BOTONES */
         .stButton>button {
             background-color: #20c997;
             color: white;
             border: none;
-            padding: 0.6rem 1.2rem;
+            padding: 0.5rem 1rem;
             border-radius: 10px;
             font-weight: bold;
             transition: 0.3s;
@@ -99,18 +85,24 @@ def login():
             color: white;
         }
 
-        /* ETIQUETAS */
         label {
             color: black !important;
             font-weight: bold;
         }
 
-        /* MENSAJE CAMPOS INCOMPLETOS */
         .warning-text {
             color: black !important;
             font-weight: bold;
         }
 
+        @media (prefers-color-scheme: dark) {
+            label {
+                color: white !important;
+            }
+            .warning-text {
+                color: white !important;
+            }
+        }
         </style>
     """, unsafe_allow_html=True)
 
