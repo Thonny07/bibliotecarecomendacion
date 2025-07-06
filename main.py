@@ -7,8 +7,6 @@ import recuperar
 import perfil
 from acciones_libros import obtener_libros_guardados
 
-# -------- DEPURACIÓN: verificar inicio --------
-st.write("🚀 App iniciando...")
 
 # -------- Configuración de página --------
 st.set_page_config(layout="wide")
@@ -53,8 +51,7 @@ if "vista" not in st.session_state:
 if "usuario" not in st.session_state:
     st.session_state.usuario = None
 
-# -------- DEPURACIÓN --------
-st.write(f"📍 Vista actual: `{st.session_state.vista}`")
+
 
 # -------- Menú lateral si inició sesión --------
 if st.session_state.usuario and st.session_state.vista not in ["recuperar", "registro"]:
@@ -73,20 +70,7 @@ if st.session_state.usuario and st.session_state.vista not in ["recuperar", "reg
         st.success("🔒 Sesión cerrada correctamente.")
         st.rerun()
 
-# -------- Menú superior derecho --------
-if st.session_state.usuario and st.session_state.vista not in ["recuperar", "registro"]:
-    col1, col2 = st.columns([10, 1])
-    with col2:
-        with st.expander("👤", expanded=False):
-            st.markdown(f"**{st.session_state.usuario['nombre']}**")
-            if st.button("🧾 Mi perfil"):
-                st.session_state.vista = "perfil"
-                st.rerun()
-            if st.button("🔒 Cerrar sesión"):
-                st.session_state.vista = "login"
-                st.session_state.usuario = None
-                st.success("Sesión cerrada.")
-                st.rerun()
+
 
     # 🌗 Botón de cambio de tema
     icono = "🌙" if not st.session_state.modo_oscuro else "🌞"
@@ -111,9 +95,6 @@ elif st.session_state.vista == "recuperar":
     st.write("📩 Cargando recuperación...")
     recuperar.recuperar_contrasena()
 
-elif st.session_state.vista == "inicio":
-    st.write("🏠 Cargando inicio...")
-    inicio.pantalla_inicio(st.session_state.usuario)
 
 elif st.session_state.vista == "perfil":
     st.write("👤 Cargando perfil...")
