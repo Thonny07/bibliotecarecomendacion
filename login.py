@@ -37,7 +37,7 @@ def login():
         }}
         .logo-img {{
             display: block;
-            margin: 0 auto 1rem auto;
+            margin: 0 auto;
             width: 160px;
             height: 160px;
             border-radius: 50%;
@@ -50,28 +50,35 @@ def login():
             color: #3bb3d4;
             margin-bottom: 2rem;
         }}
-        /* Inputs con texto negro */
         input[type="text"], input[type="password"] {{
             color: black !important;
         }}
         input::placeholder {{
             color: #555 !important;
         }}
-
-        /* Botones verde agua */
-        .btn-verdeagua > button {{
+        /* Botón verde agua */
+        .custom-button > button {{
             background-color: #20c997 !important;
             color: white !important;
-            border-radius: 10px;
-            font-weight: bold;
-            width: 100% !important;
-            font-size: 0.95rem;
-            padding: 0.6rem 1rem;
             border: none;
-            margin-top: 0.4rem;
+            border-radius: 10px;
+            padding: 0.6rem 1.5rem;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+            transition: 0.3s;
         }}
-        .btn-verdeagua > button:hover {{
-            background-color: #1eb386 !important;
+        .custom-button > button:hover {{
+            background-color: #1aa179 !important;
+            color: white !important;
+        }}
+        .button-container {{
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+            flex-wrap: wrap;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -84,10 +91,12 @@ def login():
     correo = st.text_input("Correo electrónico")
     contrasena = st.text_input("Contraseña", type="password")
 
-    # Botones
-    col1, col2 = st.columns([1, 1], gap="small")
+    # Botones centrados
+    st.markdown('<div class="button-container">', unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
     with col1:
-        st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
+        st.markdown('<div class="custom-button">', unsafe_allow_html=True)
         if st.button("Iniciar sesión", key="btn_login"):
             if not correo or not contrasena:
                 st.warning("⚠️ Campos incompletos")
@@ -106,14 +115,14 @@ def login():
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
+        st.markdown('<div class="custom-button">', unsafe_allow_html=True)
         if st.button("Registrarse", key="btn_register"):
             st.session_state.vista = "registro"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
     # Botón de recuperar contraseña
-    st.markdown('<div class="btn-verdeagua" style="margin-top: 0.8rem;">', unsafe_allow_html=True)
+    st.markdown('<div class="custom-button" style="margin-top: 0.8rem; width: 50%; margin-left: auto; margin-right: auto;">', unsafe_allow_html=True)
     if st.button("¿Olvidaste tu contraseña?", key="btn_forgot"):
         st.session_state.codigo_enviado = False
         st.session_state.codigo_verificacion = ""
@@ -121,5 +130,7 @@ def login():
         st.session_state.vista = "recuperar"
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)  # Cierre del contenedor de botones
 
     return acceso, usuario
