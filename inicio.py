@@ -23,6 +23,9 @@ def guardar_reseña(correo, titulo, estrellas, comentario):
         "comentario": comentario
     })
 
+def mostrar_estrellas(valor):
+    return "".join(["★" if i < valor else "☆" for i in range(5)])
+
 def aplicar_tema_estilo():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
@@ -34,7 +37,7 @@ def aplicar_tema_estilo():
             background-color: {fondo};
             color: {texto};
         }}
-        .stTextInput input, .stTextArea textarea, .stSelectbox select {{
+        .stTextInput input, .stTextArea textarea, .stSelectbox select, .stRadio div {{
             background-color: {fondo};
             color: {texto};
             border: 1px solid {borde_input};
@@ -48,17 +51,17 @@ def aplicar_tema_estilo():
             background-color: rgba(200, 200, 200, 0.1);
             padding: 10px;
             border-radius: 8px;
-            margin-bottom: 15px;
         }}
-        .estrella-btn {{
-            font-size: 24px;
-            background: none;
+        button {{
+            background-color: #44bba4 !important;
+            color: white !important;
             border: none;
-            color: {texto};
+            border-radius: 5px;
+            padding: 8px 16px;
             cursor: pointer;
         }}
-        .estrella-btn:hover {{
-            color: #FFD700;
+        button:hover {{
+            background-color: #379d8e !important;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -83,62 +86,65 @@ def pantalla_inicio(usuario):
 
     col_izq, col_der = st.columns([3, 1.5])
 
+    resultados = []
+    if consulta:
+        resultados = buscar_libros_api(consulta, idioma=idioma, pais=pais)
+
     with col_der:
         st.markdown("<h3>Recomendaciones</h3>", unsafe_allow_html=True)
-        temas = ["historia", "filosofía", "ciencia", "novela", "fantasía", "autoayuda"]
-        tema_recom = random.choice([t for t in temas if consulta.lower() not in t])
-        sugerencias = buscar_libros_api(tema_recom, idioma="Todos", pais="Todos")[:5]
-        for s in sugerencias:
+        recomendaciones = []
+        if resultados:
+            todos = buscar_libros_api(random.choice(["historia", "filosofía", "ciencia", "novela", "fantasía"]), idioma, pais)
+            recomendaciones = [lib for lib in todos if lib["titulo"] not in [r["titulo"] for r in resultados]][:5]
+        else:
+            recomendaciones = buscar_libros_api(random.choice(["historia", "novela", "autoayuda"]), idioma, pais)[:5]
+
+        for s in recomendaciones:
             st.markdown(f"<div class='recomendacion-container'><strong>{s['titulo']}</strong>", unsafe_allow_html=True)
             if s.get("imagen"):
                 st.image(s["imagen"], width=100)
             if s.get("enlace"):
                 st.markdown(f"<a href='{s['enlace']}' target='_blank'><button>Leer libro</button></a>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("</div><br>", unsafe_allow_html=True)
 
     with col_izq:
-        if consulta:
-            resultados = buscar_libros_api(consulta, idioma=idioma, pais=pais)
-            if resultados:
-                for idx, libro in enumerate(resultados):
-                    st.markdown("<hr>", unsafe_allow_html=True)
-                    c1, c2 = st.columns([1, 3])
-                    with c1:
-                        if libro.get("imagen"):
-                            st.image(libro["imagen"], width=130)
-                    with c2:
-                        st.subheader(libro["titulo"])
-                        st.markdown(f"**Autores:** {libro.get('autores', 'Desconocido')}")
-                        with st.expander("Descripción"):
-                            st.write(libro.get("descripcion", "Sin descripción"))
-                        if st.button("Guardar para leer después", key=f"guardar_{idx}"):
-                            guardar_libro_para_usuario(usuario["correo"], libro)
-                            st.success("Libro guardado exitosamente.")
-                        if libro.get("enlace"):
-                            st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
+        if consulta and resultados:
+            for idx, libro in enumerate(resultados):
+                st.markdown("<hr>", unsafe_allow_html=True)
+                c1, c2 = st.columns([1, 3])
+                with c1:
+                    if libro.get("imagen"):
+                        st.image(libro["imagen"], width=130)
+                with c2:
+                    st.subheader(libro["titulo"])
+                    st.markdown(f"<strong>Autores:</strong> {libro.get('autores', 'Desconocido')}", unsafe_allow_html=True)
+                    with st.expander("Descripción"):
+                        st.write(libro.get("descripcion", "Sin descripción"))
+                    if st.button("Guardar para leer después", key=f"guardar_{idx}"):
+                        guardar_libro_para_usuario(usuario["correo"], libro)
+                        st.success("Libro guardado exitosamente.")
+                    if libro.get("enlace"):
+                        st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
-                        st.markdown("**Califica este libro:**", unsafe_allow_html=True)
-                        if f"calificacion_{idx}" not in st.session_state:
-                            st.session_state[f"calificacion_{idx}"] = 0
+                    st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
+                    cal_cols = st.columns(5)
+                    estrellas_seleccionadas = st.session_state.get(f"estrellas_{idx}", 0)
+                    for i in range(5):
+                        if cal_cols[i].button("★" if i < estrellas_seleccionadas else "☆", key=f"estrella_{idx}_{i}"):
+                            st.session_state[f"estrellas_{idx}"] = i + 1
+                    comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
+                    if st.button("Enviar reseña", key=f"resena_{idx}"):
+                        estrellas = st.session_state.get(f"estrellas_{idx}", 0)
+                        guardar_reseña(usuario["correo"], libro["titulo"], estrellas, comentario)
+                        st.success("¡Gracias por tu reseña!")
 
-                        col_estrella = st.columns(5)
-                        for i in range(5):
-                            if col_estrella[i].button("★" if i < st.session_state[f"calificacion_{idx}"] else "☆", key=f"estrella_{idx}_{i}"):
-                                st.session_state[f"calificacion_{idx}"] = i + 1
-
-                        comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
-                        if st.button("Enviar reseña", key=f"resena_{idx}"):
-                            guardar_reseña(usuario["correo"], libro["titulo"], st.session_state[f"calificacion_{idx}"], comentario)
-                            st.success("¡Gracias por tu reseña!")
-
-                        reseñas = obtener_reseñas(libro["titulo"])
-                        if reseñas:
-                            st.markdown("<h4>Comentarios de otros usuarios:</h4>", unsafe_allow_html=True)
-                            for r in reseñas:
-                                estrellas_vista = "★" * r['estrellas'] + "☆" * (5 - r['estrellas'])
-                                st.markdown(f"<b>{r['correo']}</b>: {estrellas_vista}", unsafe_allow_html=True)
-                                if r["comentario"]:
-                                    st.markdown(f"<blockquote>{r['comentario']}</blockquote>", unsafe_allow_html=True)
+                    reseñas = obtener_reseñas(libro["titulo"])
+                    if reseñas:
+                        st.markdown("<h4>Comentarios de otros usuarios:</h4>", unsafe_allow_html=True)
+                        for r in reseñas:
+                            st.markdown(f"<b>{r['correo']}</b>: {mostrar_estrellas(r['estrellas'])}", unsafe_allow_html=True)
+                            if r["comentario"]:
+                                st.markdown(f"<blockquote>{r['comentario']}</blockquote>", unsafe_allow_html=True)
 
     st.markdown("<h3>Recomendaciones para ti</h3>", unsafe_allow_html=True)
     edad = usuario.get("edad", 25)
