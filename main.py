@@ -108,9 +108,6 @@ elif st.session_state.vista == "recuperar":
     st.write("📩 Cargando recuperación...")
     recuperar.recuperar_contrasena()
 
-elif st.session_state.vista == "inicio":
-    st.write("🏠 Cargando inicio...")
-    inicio.pantalla_inicio(st.session_state.usuario)
 
 elif st.session_state.vista == "perfil":
     st.write("👤 Cargando perfil...")
