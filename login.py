@@ -25,12 +25,27 @@ def login():
     # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
-        /* Eliminar cabecera y sombras superiores de Streamlit */
+        /* ELIMINAR BARRAS, RECTÁNGULOS Y MÁRGENES EXTERNOS */
         header, footer { visibility: hidden !important; height: 0px !important; }
-        .block-container:has(> .stToolbar) { padding-top: 0rem !important; }
-        .stToolbar { display: none !important; }
+        .stApp {
+            padding-top: 0 !important;
+        }
+        .block-container {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
 
-        /* Contenedor principal centrado */
+        /* Forzar fondo transparente en contenedores top */
+        .css-18ni7ap, .css-1dp5vir, .css-1avcm0n, .e8zbici2 {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            height: 0px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+        }
+
+        /* Contenedor principal */
         .login-container {
             background-color: white;
             border-radius: 20px;
