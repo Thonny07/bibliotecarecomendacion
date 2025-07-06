@@ -69,7 +69,9 @@ with col_titulo:
     """, unsafe_allow_html=True)
 
 with col_tema:
-    if st.button("💡" if not st.session_state.modo_oscuro else "🔦", key="toggle_tema"):
+    tema_texto = "Tema"
+    icono = "💡" if not st.session_state.modo_oscuro else "🔦"
+    if st.button(f"{tema_texto} {icono}", key="toggle_tema"):
         st.session_state.modo_oscuro = not st.session_state.modo_oscuro
         st.rerun()
 
