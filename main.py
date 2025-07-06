@@ -6,7 +6,6 @@ import inicio
 import recuperar
 import perfil
 from acciones_libros import obtener_libros_guardados
-from io import BytesIO
 
 # Configuración de la página
 st.set_page_config(layout="wide")
@@ -56,50 +55,56 @@ def aplicar_tema():
 
 aplicar_tema()
 
-# Estilo y encabezado con logo circular y título
+# Encabezado con logo, título y botón de tema alineados en una fila centrada
 st.markdown("""
     <style>
-    .encabezado-container {
+    .header-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 10px;
-        margin-bottom: 20px;
+        gap: 20px;
+        margin-top: 20px;
+        margin-bottom: 30px;
     }
-    .titulo {
+    .header-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .header-title {
         font-size: 36px;
         font-weight: bold;
-        margin: 0 0 0 20px;
+        margin: 0;
+    }
+    .header-button {
+        background-color: #44bba4;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="encabezado-container">', unsafe_allow_html=True)
-try:
-    logo = Image.open("logobiblioteca.png").resize((80, 80))
-    circ_logo = Image.new("RGBA", logo.size)
-    mask = Image.new("L", logo.size, 0)
-    from PIL import ImageDraw
-    ImageDraw.Draw(mask).ellipse((0, 0) + logo.size, fill=255)
-    circ_logo.paste(logo, (0, 0), mask=mask)
-    buf = BytesIO()
-    circ_logo.save(buf, format="PNG")
-    st.image(buf.getvalue(), width=80)
-except:
-    st.warning("No se pudo cargar el logo")
+col1, col2, col3 = st.columns([1, 6, 1])
+with col2:
+    st.markdown(f"""
+        <div class="header-container">
+            <img src="logobiblioteca.png" class="header-logo"/>
+            <div class="header-title">Biblioteca Alejandría</div>
+            <form action="" method="post">
+                <button class="header-button" name="toggle">Tema {"💡" if not st.session_state.modo_oscuro else "🔦"}</button>
+            </form>
+        </div>
+    """, unsafe_allow_html=True)
 
-st.markdown('<div class="titulo">Biblioteca Alejandría</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Botón "Tema" a la derecha
-with st.container():
-    col_btn = st.columns([10, 1])[1]
-    with col_btn:
-        tema_texto = "Tema"
-        icono = "💡" if not st.session_state.modo_oscuro else "🔦"
-        if st.button(f"{tema_texto} {icono}", key="toggle_tema"):
-            st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-            st.rerun()
+if "toggle" in st.experimental_get_query_params():
+    st.session_state.modo_oscuro = not st.session_state.modo_oscuro
+    st.experimental_set_query_params()
+    st.rerun()
 
 # Estado inicial de navegación
 if "vista" not in st.session_state:
