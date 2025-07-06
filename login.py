@@ -22,7 +22,7 @@ def login():
     acceso = False
     usuario = None
 
-    # Cargar imagen como base64
+    # Cargar logo como base64
     def load_logo_base64(path):
         with open(path, "rb") as img:
             return base64.b64encode(img.read()).decode()
@@ -61,23 +61,27 @@ def login():
             font-size: 0.95rem;
             padding: 0.6rem 1rem;
             border: none;
+            margin-top: 0.4rem;
         }}
         .btn-verdeagua > button:hover {{
             background-color: #1eb386 !important;
         }}
+        .column-btns {{
+            gap: 10px !important;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
-    # ✅ Mostrar logo circular en el centro y nombre debajo
+    # Logo y nombre
     st.markdown(f'<img class="logo-img" src="data:image/png;base64,{logo_base64}">', unsafe_allow_html=True)
     st.markdown('<div class="app-name">Biblioteca Alejandría</div>', unsafe_allow_html=True)
 
-    # Campos de ingreso
+    # Campos
     correo = st.text_input("Correo electrónico")
     contrasena = st.text_input("Contraseña", type="password")
 
-    # Botones
-    col1, col2 = st.columns(2)
+    # Botones en columnas
+    col1, col2 = st.columns([1, 1], gap="small")
     with col1:
         st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
         if st.button("Iniciar sesión", key="btn_login"):
@@ -104,9 +108,8 @@ def login():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.divider()
-
-    st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
+    # Botón de recuperar contraseña
+    st.markdown('<div class="btn-verdeagua" style="margin-top: 0.8rem;">', unsafe_allow_html=True)
     if st.button("¿Olvidaste tu contraseña?", key="btn_forgot"):
         st.session_state.codigo_enviado = False
         st.session_state.codigo_verificacion = ""
