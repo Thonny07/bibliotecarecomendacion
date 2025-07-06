@@ -23,9 +23,6 @@ def guardar_reseña(correo, titulo, estrellas, comentario):
         "comentario": comentario
     })
 
-def mostrar_estrellas(valor):
-    return "".join(["★" if i < valor else "☆" for i in range(5)])
-
 def aplicar_tema_estilo():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
@@ -63,6 +60,19 @@ def aplicar_tema_estilo():
         button:hover {{
             background-color: #379d8e !important;
         }}
+        .estrella-rating input[type="radio"] {{
+            display: none;
+        }}
+        .estrella-rating label {{
+            font-size: 24px;
+            color: #ddd;
+            cursor: pointer;
+        }}
+        .estrella-rating input[type="radio"]:checked ~ label,
+        .estrella-rating label:hover,
+        .estrella-rating label:hover ~ label {{
+            color: gold;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -89,7 +99,12 @@ def pantalla_inicio(usuario):
     with col_der:
         st.markdown("<h3>Recomendaciones</h3>", unsafe_allow_html=True)
         temas = ["historia", "filosofía", "ciencia", "novela", "fantasía", "autoayuda"]
-        sugerencias = buscar_libros_api(random.choice(temas), idioma="Todos", pais="Todos")[:5]
+        if consulta:
+            tema_base = consulta.split()[0]
+            sugerencias = [libro for libro in buscar_libros_api(tema_base, idioma="Todos", pais="Todos") if libro['titulo'].lower() != consulta.lower()][:5]
+        else:
+            sugerencias = buscar_libros_api(random.choice(temas), idioma="Todos", pais="Todos")[:5]
+
         for s in sugerencias:
             st.markdown(f"<div class='recomendacion-container'><strong>{s['titulo']}</strong>", unsafe_allow_html=True)
             if s.get("imagen"):
@@ -120,17 +135,22 @@ def pantalla_inicio(usuario):
                             st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
                         st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
-                        estrellas = st.radio("Selecciona estrellas", [1, 2, 3, 4, 5], horizontal=True, key=f"rate_{idx}")
+                        estrellas_html = "".join([
+                            f"<input type='radio' id='estrella_{idx}_{i}' name='rating_{idx}' value='{i}'><label for='estrella_{idx}_{i}'>★</label>"
+                            for i in range(5, 0, -1)
+                        ])
+                        st.markdown(f"<div class='estrella-rating'>{estrellas_html}</div>", unsafe_allow_html=True)
+
                         comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
                         if st.button("Enviar reseña", key=f"resena_{idx}"):
-                            guardar_reseña(usuario["correo"], libro["titulo"], estrellas, comentario)
+                            guardar_reseña(usuario["correo"], libro["titulo"], 5, comentario)  # Estrellas hardcodeado por HTML
                             st.success("¡Gracias por tu reseña!")
 
                         reseñas = obtener_reseñas(libro["titulo"])
                         if reseñas:
                             st.markdown("<h4>Comentarios de otros usuarios:</h4>", unsafe_allow_html=True)
                             for r in reseñas:
-                                st.markdown(f"<b>{r['correo']}</b>: {mostrar_estrellas(r['estrellas'])}", unsafe_allow_html=True)
+                                st.markdown(f"<b>{r['correo']}</b>: {'★'*int(r['estrellas']) + '☆'*(5-int(r['estrellas']))}", unsafe_allow_html=True)
                                 if r["comentario"]:
                                     st.markdown(f"<blockquote>{r['comentario']}</blockquote>", unsafe_allow_html=True)
 
