@@ -2,7 +2,7 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 import json
-import base64  # Necesario para el logo en base64
+import base64
 
 # ---------- INICIALIZAR FIREBASE ----------
 if not firebase_admin._apps:
@@ -65,28 +65,32 @@ def login():
             background-color: #1aa179;
             color: white;
         }
-        .input-label {
-            text-align: left;
-            color: black;
-            font-weight: 600;
+        label {
+            color: black !important;
+            font-weight: bold;
+        }
+        .warning-text {
+            color: black !important;
+            font-weight: bold;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # ---------- Mostrar el logo ----------
+    # ---------- Contenedor principal ----------
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
 
+    # ---------- Logo centrado ----------
     try:
         with open("logobiblioteca.png", "rb") as image_file:
             encoded = base64.b64encode(image_file.read()).decode()
             st.markdown(
                 f"""
                 <img src="data:image/png;base64,{encoded}" 
-                     style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 1rem;">
+                     style="width: 130px; height: 130px; border-radius: 50%; margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto;">
                 """,
                 unsafe_allow_html=True
             )
-    except Exception as e:
+    except Exception:
         st.warning("⚠️ No se pudo cargar el logo. Verifica la ruta y el nombre del archivo.")
 
     # ---------- Título ----------
@@ -101,7 +105,7 @@ def login():
     with col1:
         if st.button("Iniciar sesión"):
             if not correo or not contrasena:
-                st.warning("⚠️ Campos incompletos")
+                st.markdown('<p class="warning-text">⚠️ Campos incompletos</p>', unsafe_allow_html=True)
             else:
                 doc = db.collection("usuarios").document(correo).get()
                 if doc.exists:
@@ -129,4 +133,5 @@ def login():
         st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
+
     return acceso, usuario
