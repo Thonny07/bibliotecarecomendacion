@@ -1,4 +1,3 @@
-# ------------------- main.py -------------------
 import streamlit as st
 from PIL import Image
 import login
@@ -53,27 +52,6 @@ def aplicar_tema():
             }
             </style>
         """, unsafe_allow_html=True)
-
-    # Ocultar cabecera Streamlit y recuadro negro superior
-    st.markdown("""
-        <style>
-        header, footer {
-            visibility: hidden !important;
-            height: 0px !important;
-        }
-        .css-18ni7ap.e8zbici2, .css-1avcm0n.e8zbici2, .css-1dp5vir.e1tzin5v1 {
-            background-color: transparent !important;
-            box-shadow: none !important;
-            height: 0px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            border: none !important;
-        }
-        .block-container {
-            padding-top: 1rem !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
 
 aplicar_tema()
 

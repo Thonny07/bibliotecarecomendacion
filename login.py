@@ -25,20 +25,29 @@ def login():
     # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
-        /* OCULTAR HEADER Y RECTÁNGULOS SUPERIORES */
-        header, footer, .block-container:has(header) > div:first-child {
+        /* OCULTAR HEADERS Y RECTÁNGULOS RESIDUALES */
+        header, footer {
             visibility: hidden !important;
+            height: 0px !important;
+        }
+
+        /* ESTA CLASE ES LA QUE CREA ESE RECTÁNGULO NEGRO SUPERIOR */
+        .css-18ni7ap.e8zbici2, .css-1avcm0n.e8zbici2, .css-1dp5vir.e1tzin5v1 {
+            background-color: transparent !important;
+            box-shadow: none !important;
             height: 0px !important;
             margin: 0 !important;
             padding: 0 !important;
+            border: none !important;
         }
 
+        /* CONTENEDOR PRINCIPAL */
         .login-container {
             background-color: white;
             border-radius: 20px;
             padding: 2.5rem;
             max-width: 450px;
-            margin: 4rem auto;
+            margin: 3rem auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
         }
@@ -55,6 +64,7 @@ def login():
             }
         }
 
+        /* LOGO */
         .logo-img {
             width: 140px;
             height: 140px;
@@ -64,6 +74,7 @@ def login():
             margin: 0 auto 1rem auto;
         }
 
+        /* TÍTULO */
         .login-title {
             font-size: 2rem;
             font-weight: bold;
@@ -71,6 +82,7 @@ def login():
             color: #20c997;
         }
 
+        /* BOTONES */
         .stButton>button {
             background-color: #20c997;
             color: white;
@@ -87,17 +99,13 @@ def login():
             color: white;
         }
 
+        /* ETIQUETAS */
         label {
             color: black !important;
             font-weight: bold;
         }
 
-        @media (prefers-color-scheme: dark) {
-            label {
-                color: white !important;
-            }
-        }
-
+        /* MENSAJE CAMPOS INCOMPLETOS */
         .warning-text {
             color: black !important;
             font-weight: bold;
@@ -138,7 +146,7 @@ def login():
                 if doc.exists:
                     datos = doc.to_dict()
                     if datos["contrasena"] == contrasena:
-                        st.success(f"Bienvenido, {datos['nombre']} \U0001f44b")
+                        st.success(f"Bienvenido, {datos['nombre']} 👋")
                         acceso = True
                         usuario = datos
                     else:
