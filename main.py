@@ -56,53 +56,77 @@ def aplicar_tema():
 aplicar_tema()
 
 # Encabezado con logo circular, título centrado y botón de tema a la derecha
-st.markdown("""
-    <style>
-    .encabezado-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 10px;
-        margin-bottom: 20px;
-    }
-    .logo {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 20px;
-    }
-    .titulo {
-        font-size: 36px;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
-    }
-    .tema-container {
-        position: absolute;
-        top: 20px;
-        right: 40px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Logo + Título centrado
-st.markdown("""
-    <div class="encabezado-container">
-        <img src="logobiblioteca.png" class="logo"/>
-        <div class="titulo">Biblioteca Alejandría</div>
-    </div>
-""", unsafe_allow_html=True)
-
-# Botón "Tema" con ícono a la derecha
-with st.container():
-    col_btn = st.columns([10, 1])[1]
-    with col_btn:
+try:
+    logo = Image.open("logobiblioteca.png")
+    col1, col2, col3 = st.columns([1.5, 5, 1.5])
+    with col2:
+        col_logo, col_texto = st.columns([1, 5])
+        with col_logo:
+            st.image(logo, width=80)
+        with col_texto:
+            st.markdown("<h1 style='margin-top: 22px;'>Biblioteca Alejandría</h1>", unsafe_allow_html=True)
+    with col3:
         tema_texto = "Tema"
-        icono = "💡" if not st.session_state.modo_oscuro else "🔦"
-        if st.button(f"{tema_texto} {icono}", key="toggle_tema"):
+        foco_style = """
+        <style>
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 50px;
+          height: 26px;
+        }
+
+        .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          transition: .4s;
+          border-radius: 26px;
+        }
+
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 20px;
+          width: 20px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .4s;
+          border-radius: 50%;
+        }
+
+        input:checked + .slider {
+          background-color: #44bba4;
+        }
+
+        input:checked + .slider:before {
+          transform: translateX(24px);
+        }
+        </style>
+        """
+        st.markdown(f"""
+        {foco_style}
+        <label class="switch">
+          <input type="checkbox" {'checked' if st.session_state.modo_oscuro else ''} onclick="window.location.reload()">
+          <span class="slider"></span>
+        </label>
+        """, unsafe_allow_html=True)
+        if st.button("Tema", key="toggle_tema"):
             st.session_state.modo_oscuro = not st.session_state.modo_oscuro
             st.rerun()
+except Exception as e:
+    st.error("No se pudo cargar el logo. Asegúrate de que 'logobiblioteca.png' esté en el mismo directorio que main.py")
 
 # Estado inicial de navegación
 if "vista" not in st.session_state:
