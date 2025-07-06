@@ -24,123 +24,134 @@ def guardar_reseña(correo, titulo, estrellas, comentario):
     })
 
 def mostrar_estrellas(valor):
-    return "".join(["⭐" if i < valor else "☆" for i in range(5)])
+    return "".join(["★" if i < valor else "☆" for i in range(5)])
+
+def aplicar_tema_estilo():
+    modo_oscuro = st.session_state.get("modo_oscuro", False)
+    fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
+    texto = "#ffffff" if modo_oscuro else "#000000"
+    borde_input = "#cccccc" if modo_oscuro else "#444444"
+
+    st.markdown(f"""
+        <style>
+        html, body, .stApp {{
+            background-color: {fondo} !important;
+            color: {texto} !important;
+        }}
+        input, textarea, select {{
+            background-color: {fondo} !important;
+            color: {texto} !important;
+            border: 1px solid {borde_input} !important;
+        }}
+        .stTextInput > div > div > input {{
+            background-color: {fondo} !important;
+            color: {texto} !important;
+        }}
+        .stSidebar {{
+            background-color: #a2ded0 !important;
+        }}
+        button {{
+            background-color: #44bba4 !important;
+            color: white !important;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }}
+        button:hover {{
+            background-color: #379d8e !important;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+
 
 def pantalla_inicio(usuario):
+    aplicar_tema_estilo()
+
+    # Logo y título
     st.markdown("""
-    <style>
-    .stApp {
-        background-color: #ffffff;
-        color: #222;
-    }
-    .stTextInput > div > input, .stTextArea > div > textarea {
-        background-color: #f4fefc;
-        color: #000;
-    }
-    .stSelectbox > div, .stRadio > div {
-        background-color: #f4fefc;
-        color: #000;
-    }
-    .custom-btn {
-        background-color: #20c997;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 5px;
-    }
-    .custom-btn:hover {
-        background-color: #1aa179;
-    }
-    </style>
+        <div style='text-align:center'>
+            <img src='https://i.imgur.com/C9ZCjBz.png' width='100' style='margin-bottom: 0;'/>
+            <h1 style='margin-top: 0;'>Biblioteca Alejandría</h1>
+        </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <h2 style="margin: 0; color: #20c997;">Biblioteca Alexandrina</h2>
-    </div>
-    """, unsafe_allow_html=True)
+    # Tema botón icono
+    with st.sidebar:
+        if "modo_oscuro" not in st.session_state:
+            st.session_state.modo_oscuro = False
+        modo = st.session_state.modo_oscuro
+        icono = "💡" if not modo else "💤"
+        if st.button("Cambiar tema"):
+            st.session_state.modo_oscuro = not modo
+            st.rerun()
 
-    st.markdown(f"**Usuario:** {usuario['nombre']} {usuario['apellido']}")
-
-    st.subheader("Buscar libros")
-    consulta = st.text_input("Nombre del libro, tema o autor")
-
+    # Contenido principal
+    st.subheader(f"Bienvenido, {usuario['nombre']} {usuario['apellido']}")
+    consulta = st.text_input("Buscar libros por título, tema o autor")
     col1, col2 = st.columns(2)
-    with col1:
-        idioma = st.selectbox("Idioma", ["Todos", "es", "en", "fr", "de", "it", "pt"])
-    with col2:
-        pais = st.selectbox("País (relevancia)", ["Todos", "PE", "US", "ES", "FR", "AR"])
+    idioma = col1.selectbox("Idioma", ["Todos", "es", "en", "fr", "de", "it", "pt"])
+    pais = col2.selectbox("País", ["Todos", "PE", "US", "ES", "FR", "AR"])
 
-    col_izq, col_der = st.columns([2.5, 1.5])
+    col_izq, col_der = st.columns([3, 1.5])
 
     with col_der:
-        st.markdown("#### Libros sugeridos")
-        temas_generales = ["historia", "filosofía", "ciencia", "novela", "fantasía", "autoayuda", "biografías"]
-        tema_aleatorio = random.choice(temas_generales)
-        sugerencias_generales = buscar_libros_api(tema_aleatorio, idioma="Todos", pais="Todos")[:7]
-
-        for sugerido in sugerencias_generales:
-            st.markdown(f"**{sugerido['titulo']}**")
-            if sugerido.get("imagen"):
-                st.image(sugerido["imagen"], width=100)
-            if sugerido.get("enlace"):
-                st.markdown(f"<a href='{sugerido['enlace']}' class='custom-btn' target='_blank'>Leer</a>", unsafe_allow_html=True)
-            st.markdown("---")
+        st.markdown("<h3>Recomendaciones</h3>", unsafe_allow_html=True)
+        temas = ["historia", "filosofía", "ciencia", "novela", "fantasía", "autoayuda"]
+        sugerencias = buscar_libros_api(random.choice(temas), idioma="Todos", pais="Todos")[:5]
+        for s in sugerencias:
+            st.markdown(f"<strong>{s['titulo']}</strong>", unsafe_allow_html=True)
+            if s.get("imagen"):
+                st.image(s["imagen"], width=100)
+            if s.get("enlace"):
+                st.markdown(f"<a href='{s['enlace']}' target='_blank'><button>Leer libro</button></a>", unsafe_allow_html=True)
+            st.markdown("<hr>", unsafe_allow_html=True)
 
     with col_izq:
         if consulta:
             resultados = buscar_libros_api(consulta, idioma=idioma, pais=pais)
             if resultados:
                 for idx, libro in enumerate(resultados):
-                    st.markdown("---")
-                    col_img, col_info = st.columns([1, 3])
-                    with col_img:
+                    st.markdown("<hr>", unsafe_allow_html=True)
+                    c1, c2 = st.columns([1, 3])
+                    with c1:
                         if libro.get("imagen"):
                             st.image(libro["imagen"], width=130)
-                    with col_info:
+                    with c2:
                         st.subheader(libro["titulo"])
-                        st.markdown(f"**Autores:** {libro.get('autores', 'Desconocido')}")
+                        st.markdown(f"<strong>Autores:</strong> {libro.get('autores', 'Desconocido')}", unsafe_allow_html=True)
                         with st.expander("Descripción"):
                             st.write(libro.get("descripcion", "Sin descripción"))
 
-                        if st.button(f"Guardar para leer después - {libro['titulo']}", key=f"guardar_{idx}"):
+                        if st.button(f"Guardar para leer después", key=f"guardar_{idx}"):
                             guardar_libro_para_usuario(usuario["correo"], libro)
                             st.success("Libro guardado exitosamente.")
 
                         if libro.get("enlace"):
-                            st.markdown(
-                                f"""<a href="{libro['enlace']}" target="_blank" class="custom-btn">
-                                Leer ahora</a>""",
-                                unsafe_allow_html=True
-                            )
+                            st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
-                        st.markdown("Califica este libro:")
-                        estrellas = st.radio("Selecciona estrellas:", [1, 2, 3, 4, 5], horizontal=True, key=f"rating_{idx}")
-                        comentario = st.text_area("Comentario (opcional):", key=f"comentario_{idx}")
+                        st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
+                        estrellas = st.radio("Selecciona estrellas", [1, 2, 3, 4, 5], horizontal=True, key=f"rate_{idx}")
+                        comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
                         if st.button("Enviar reseña", key=f"resena_{idx}"):
                             guardar_reseña(usuario["correo"], libro["titulo"], estrellas, comentario)
                             st.success("¡Gracias por tu reseña!")
 
                         reseñas = obtener_reseñas(libro["titulo"])
                         if reseñas:
-                            st.markdown("Comentarios de otros usuarios:")
+                            st.markdown("<h4>Comentarios de otros usuarios:</h4>", unsafe_allow_html=True)
                             for r in reseñas:
-                                st.markdown(f"- **{r['correo']}**: {mostrar_estrellas(r['estrellas'])}")
+                                st.markdown(f"<b>{r['correo']}</b>: {mostrar_estrellas(r['estrellas'])}", unsafe_allow_html=True)
                                 if r["comentario"]:
-                                    st.markdown(f"> {r['comentario']}")
+                                    st.markdown(f"<blockquote>{r['comentario']}</blockquote>", unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("#### Recomendaciones personalizadas")
+    # Recomendaciones personalizadas
+    st.markdown("<h3>Recomendaciones para ti</h3>", unsafe_allow_html=True)
     edad = usuario.get("edad", 25)
-    genero_usuario = usuario.get("genero", "Otro")
-
+    genero = usuario.get("genero", "Otro")
     if edad < 18:
-        st.info("Recomendamos libros juveniles, fantasía y aventuras.")
-    elif genero_usuario == "Femenino":
-        st.info("Puedes explorar novelas históricas, ficción y autoayuda.")
+        st.info("Recomendamos libros juveniles y aventuras.")
+    elif genero == "Femenino":
+        st.info("Explora novelas históricas y autoayuda.")
     else:
-        st.info("Revisa libros de ciencia, historia, negocios o tecnología.")
+        st.info("Revisa ciencia, historia, tecnología y negocios.")
