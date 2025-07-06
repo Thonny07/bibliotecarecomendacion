@@ -30,6 +30,7 @@ def login():
             background-color: {fondo};
             color: {texto};
             overflow: hidden;
+            height: 100vh;
         }}
         .form-box {{
             background-color: {fondo};
@@ -60,11 +61,11 @@ def login():
         .stButton > button:hover {{
             background-color: #379d8e;
         }}
-        .small-links {{
+        .form-wrapper {{
+            height: 100vh;
             display: flex;
-            justify-content: space-between;
-            font-size: 0.9em;
-            margin-top: 10px;
+            justify-content: center;
+            align-items: center;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -79,23 +80,20 @@ def login():
 
     col1, col2 = st.columns([7, 5])
 
-    # IZQUIERDA: Imagen de fondo
+    # IZQUIERDA: Imagen de bienvenida
     with col1:
         try:
             st.image("portadalogin.png", use_container_width=True)
         except:
             st.warning("⚠️ No se pudo cargar la imagen")
 
-    # DERECHA: Formulario centrado vertical y horizontal
+    # DERECHA: Formulario totalmente centrado
     with col2:
-        st.markdown(
-            "<div style='display: flex; height: 90vh; align-items: center; justify-content: center;'>",
-            unsafe_allow_html=True
-        )
+        st.markdown("<div class='form-wrapper'>", unsafe_allow_html=True)
 
         with st.container():
             st.markdown("<div class='form-box'>", unsafe_allow_html=True)
-            st.markdown("<h3>Iniciar sesión</h3>", unsafe_allow_html=True)
+            st.markdown("<h3>USER LOGIN</h3>", unsafe_allow_html=True)
 
             correo = st.text_input("Correo electrónico")
             contrasena = st.text_input("Contraseña", type="password")
