@@ -55,56 +55,22 @@ def aplicar_tema():
 
 aplicar_tema()
 
-# Encabezado con logo, título y botón de tema alineados en una fila centrada
-st.markdown("""
-    <style>
-    .header-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-        margin-top: 20px;
-        margin-bottom: 30px;
-    }
-    .header-logo {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    .header-title {
-        font-size: 36px;
-        font-weight: bold;
-        margin: 0;
-    }
-    .header-button {
-        background-color: #44bba4;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns([1, 6, 1])
+# Encabezado: logo + nombre centrados, botón de tema a la derecha
+col1, col2, col3 = st.columns([1, 4, 1])
 with col2:
-    st.markdown(f"""
-        <div class="header-container">
-            <img src="logobiblioteca.png" class="header-logo"/>
-            <div class="header-title">Biblioteca Alejandría</div>
-            <form action="" method="post">
-                <button class="header-button" name="toggle">Tema {"💡" if not st.session_state.modo_oscuro else "🔦"}</button>
-            </form>
+    st.markdown("""
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px;">
+            <img src="logobiblioteca.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+            <h1 style="margin: 0;">Biblioteca Alejandría</h1>
         </div>
     """, unsafe_allow_html=True)
 
-if "toggle" in st.experimental_get_query_params():
-    st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-    st.experimental_set_query_params()
-    st.rerun()
+with col3:
+    tema_texto = "Tema"
+    icono = "💡" if not st.session_state.modo_oscuro else "🔦"
+    if st.button(f"{tema_texto} {icono}", key="toggle_tema"):
+        st.session_state.modo_oscuro = not st.session_state.modo_oscuro
+        st.rerun()
 
 # Estado inicial de navegación
 if "vista" not in st.session_state:
