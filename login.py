@@ -25,15 +25,20 @@ def login():
     # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
-        /* OCULTAR HEADER, FOOTER Y RECTÁNGULOS DEFAULT */
-        /* LA ÚNICA MODIFICACIÓN ES LA ADICIÓN DE '[data-testid="stHeader"]' A ESTA REGLA */
-        header, footer, .css-18ni7ap.e8zbici2, .css-1avcm0n.e8zbici2, [data-testid="stHeader"] {
-            display: none !important;
+        /* OCULTAR HEADERS Y RECTÁNGULOS RESIDUALES */
+        header, footer {
             visibility: hidden !important;
             height: 0px !important;
         }
-        .block-container {
-            padding-top: 0rem !important;
+
+        /* ESTA CLASE ES LA QUE CREA ESE RECTÁNGULO NEGRO SUPERIOR */
+        .css-18ni7ap.e8zbici2, .css-1avcm0n.e8zbici2, .css-1dp5vir.e1tzin5v1 {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            height: 0px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
         }
 
         /* CONTENEDOR PRINCIPAL */
@@ -61,8 +66,8 @@ def login():
 
         /* LOGO */
         .logo-img {
-            width: 130px;
-            height: 130px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             object-fit: cover;
             display: block;
@@ -105,6 +110,7 @@ def login():
             color: black !important;
             font-weight: bold;
         }
+
         </style>
     """, unsafe_allow_html=True)
 
@@ -143,15 +149,6 @@ def login():
                         st.success(f"Bienvenido, {datos['nombre']} 👋")
                         acceso = True
                         usuario = datos
-                        # Asegúrate de que estos estados de sesión sean manejados en el flujo principal del app
-                        if 'logged_in' not in st.session_state:
-                            st.session_state.logged_in = False
-                        if 'logged_user_name' not in st.session_state:
-                            st.session_state.logged_user_name = ""
-                        st.session_state.logged_in = True
-                        st.session_state.logged_user_name = datos['nombre']
-                        st.session_state.vista = "dashboard"
-                        st.rerun()
                     else:
                         st.error("❌ Contraseña incorrecta")
                 else:
@@ -163,14 +160,6 @@ def login():
             st.rerun()
 
     if st.button("¿Olvidaste tu contraseña?"):
-        # Asegúrate de que estos estados de sesión sean manejados en el flujo principal del app
-        if 'codigo_enviado' not in st.session_state:
-            st.session_state.codigo_enviado = False
-        if 'codigo_verificacion' not in st.session_state:
-            st.session_state.codigo_verificacion = ""
-        if 'correo_recuperar' not in st.session_state:
-            st.session_state.correo_recuperar = ""
-
         st.session_state.codigo_enviado = False
         st.session_state.codigo_verificacion = ""
         st.session_state.correo_recuperar = ""
@@ -180,48 +169,3 @@ def login():
     st.markdown("</div>", unsafe_allow_html=True)
 
     return acceso, usuario
-
-# ---------- MAIN APPLICATION FLOW (AS PROVIDED IN YOUR ORIGINAL CODE) ----------
-if __name__ == "__main__":
-    # Asegúrate de que 'vista' esté inicializada en st.session_state
-    if 'vista' not in st.session_state:
-        st.session_state.vista = "login"
-    
-    # Asegúrate de que 'logged_in' y 'logged_user_name' estén inicializados
-    if 'logged_in' not in st.session_state:
-        st.session_state.logged_in = False
-    if 'logged_user_name' not in st.session_state:
-        st.session_state.logged_user_name = ""
-
-
-    if st.session_state.vista == "login":
-        login()
-    elif st.session_state.vista == "registro":
-        st.title("Página de Registro")
-        st.write("Aquí iría el formulario de registro. (Implementa tu lógica aquí)")
-        # Asegúrate de que los botones en otras vistas también tengan keys únicas si los añades
-        if st.button("Volver al Login"): # Podría necesitar key única si hay otros botones sin key
-            st.session_state.vista = "login"
-            st.rerun()
-    elif st.session_state.vista == "recuperar":
-        st.title("Recuperar Contraseña")
-        st.write("Aquí iría el proceso para recuperar la contraseña. (Implementa tu lógica aquí)")
-        # Asegúrate de que los botones en otras vistas también tengan keys únicas si los añades
-        if st.button("Volver al Login"): # Podría necesitar key única si hay otros botones sin key
-            st.session_state.vista = "login"
-            st.rerun()
-    elif st.session_state.vista == "dashboard":
-        # Asegúrate de que 'logged_user_name' existe antes de usarlo
-        user_name = st.session_state.get('logged_user_name', 'usuario')
-        st.title(f"🎉 Bienvenido al Dashboard, {user_name}!")
-        st.write("¡Has iniciado sesión exitosamente!")
-        st.write("Este es tu espacio personal.")
-        # Asegúrate de que los botones en otras vistas también tengan keys únicas si los añades
-        if st.button("Cerrar Sesión"): # Podría necesitar key única si hay otros botones sin key
-            # Al cerrar sesión, limpia el estado de inicio de sesión
-            if 'logged_in' in st.session_state:
-                del st.session_state.logged_in
-            if 'logged_user_name' in st.session_state:
-                del st.session_state.logged_user_name
-            st.session_state.vista = "login"
-            st.rerun()
