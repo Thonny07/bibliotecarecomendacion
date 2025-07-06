@@ -25,33 +25,20 @@ def login():
     # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
-        /* ELIMINAR BARRAS, RECTÁNGULOS Y MÁRGENES EXTERNOS */
-        header, footer { visibility: hidden !important; height: 0px !important; }
-        .stApp {
-            padding-top: 0 !important;
-        }
-        .block-container {
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-
-        /* Forzar fondo transparente en contenedores top */
-        .css-18ni7ap, .css-1dp5vir, .css-1avcm0n, .e8zbici2 {
-            background-color: transparent !important;
-            box-shadow: none !important;
+        /* OCULTAR HEADER Y RECTÁNGULOS SUPERIORES */
+        header, footer, .block-container:has(header) > div:first-child {
+            visibility: hidden !important;
             height: 0px !important;
             margin: 0 !important;
             padding: 0 !important;
-            border: none !important;
         }
 
-        /* Contenedor principal */
         .login-container {
             background-color: white;
             border-radius: 20px;
             padding: 2.5rem;
-            max-width: 400px;
-            margin: 3rem auto;
+            max-width: 450px;
+            margin: 4rem auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
         }
@@ -69,8 +56,8 @@ def login():
         }
 
         .logo-img {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             object-fit: cover;
             display: block;
@@ -78,7 +65,7 @@ def login():
         }
 
         .login-title {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
             margin-bottom: 1.5rem;
             color: #20c997;
@@ -88,7 +75,7 @@ def login():
             background-color: #20c997;
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 10px;
             font-weight: bold;
             transition: 0.3s;
@@ -105,19 +92,17 @@ def login():
             font-weight: bold;
         }
 
+        @media (prefers-color-scheme: dark) {
+            label {
+                color: white !important;
+            }
+        }
+
         .warning-text {
             color: black !important;
             font-weight: bold;
         }
 
-        @media (prefers-color-scheme: dark) {
-            label {
-                color: white !important;
-            }
-            .warning-text {
-                color: white !important;
-            }
-        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -153,7 +138,7 @@ def login():
                 if doc.exists:
                     datos = doc.to_dict()
                     if datos["contrasena"] == contrasena:
-                        st.success(f"Bienvenido, {datos['nombre']} 👋")
+                        st.success(f"Bienvenido, {datos['nombre']} \U0001f44b")
                         acceso = True
                         usuario = datos
                     else:
