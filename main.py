@@ -8,7 +8,7 @@ import perfil
 from acciones_libros import obtener_libros_guardados
 
 # -------- Configuración de página --------
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="Biblioteca Alejandría", page_icon="📖")
 
 # -------- Estado inicial de tema --------
 if "modo_oscuro" not in st.session_state:
@@ -23,6 +23,9 @@ def aplicar_tema():
                 background-color: #1e1e1e !important;
                 color: white !important;
             }
+            .stSidebar {
+                background-color: #44bba4 !important;
+            }
             </style>
         """, unsafe_allow_html=True)
     else:
@@ -32,17 +35,21 @@ def aplicar_tema():
                 background-color: white !important;
                 color: black !important;
             }
+            .stSidebar {
+                background-color: #a2ded0 !important;
+            }
             </style>
         """, unsafe_allow_html=True)
 
 aplicar_tema()
 
-# -------- Logo centrado --------
-try:
-    logo = Image.open("logobiblioteca.png")
-    st.image(logo, width=150)
-except:
-    st.warning("No se pudo cargar el logo")
+# -------- Encabezado con logo y título centrado --------
+st.markdown("""
+    <div style='text-align:center; display:flex; flex-direction:row; justify-content:center; align-items:center; gap:20px; margin-bottom:30px;'>
+        <img src='logobiblioteca.png' width='60' />
+        <h1 style='margin: 0;'>Biblioteca Alejandría</h1>
+    </div>
+""", unsafe_allow_html=True)
 
 # -------- Estado inicial de navegación --------
 if "vista" not in st.session_state:
@@ -67,20 +74,9 @@ if st.session_state.usuario and st.session_state.vista not in ["recuperar", "reg
         st.success("Sesión cerrada correctamente.")
         st.rerun()
 
-# -------- Botón de tema y cierre sesión en parte superior --------
+# -------- Botón de cambio de tema --------
 if st.session_state.usuario and st.session_state.vista not in ["recuperar", "registro"]:
-    col1, col2 = st.columns([10, 1])
-    with col2:
-        with st.expander("", expanded=False):
-            st.markdown(f"**{st.session_state.usuario['nombre']}**")
-            if st.button("Cerrar sesión"):
-                st.session_state.vista = "login"
-                st.session_state.usuario = None
-                st.success("Sesión cerrada.")
-                st.rerun()
-
-    icono = "🌙" if not st.session_state.modo_oscuro else "🌞"
-    if st.button(f"{icono} Cambiar tema"):
+    if st.button("Cambiar tema"):
         st.session_state.modo_oscuro = not st.session_state.modo_oscuro
         st.rerun()
 
