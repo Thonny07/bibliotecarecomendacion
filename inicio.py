@@ -1,143 +1,157 @@
 import streamlit as st
-from PIL import Image
-import login
-import registro
-import inicio
-import recuperar
-import perfil
-from acciones_libros import obtener_libros_guardados
+from libros_api import buscar_libros_api
+from acciones_libros import guardar_libro_para_usuario
+import firebase_admin
+from firebase_admin import credentials, firestore
+import random
 
-# Configurar página
-st.set_page_config(layout="wide", page_title="Biblioteca Alejandría")
+# Inicializar Firebase si aún no está
+if not firebase_admin._apps:
+    cred = credentials.Certificate("firebase_config.json")
+    firebase_admin.initialize_app(cred)
+db = firestore.client()
 
-# Estado inicial
-if "vista" not in st.session_state:
-    st.session_state.vista = "login"
-if "usuario" not in st.session_state:
-    st.session_state.usuario = None
-if "modo_oscuro" not in st.session_state:
-    st.session_state.modo_oscuro = False
+def obtener_reseñas(titulo):
+    reseñas = db.collection("reseñas").where("titulo", "==", titulo).stream()
+    return [r.to_dict() for r in reseñas]
 
-# Tema visual dinámico
-def aplicar_tema():
-    modo = st.session_state.modo_oscuro
-    st.markdown(
-        f"""
+def guardar_reseña(correo, titulo, estrellas, comentario):
+    db.collection("reseñas").add({
+        "correo": correo,
+        "titulo": titulo,
+        "estrellas": estrellas,
+        "comentario": comentario
+    })
+
+def mostrar_estrellas(valor):
+    return "".join(["★" if i < valor else "☆" for i in range(5)])
+
+def aplicar_tema_estilo():
+    modo_oscuro = st.session_state.get("modo_oscuro", False)
+    fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
+    texto = "#ffffff" if modo_oscuro else "#000000"
+    borde_input = "#cccccc" if modo_oscuro else "#444444"
+
+    st.markdown(f"""
         <style>
         html, body, .stApp {{
-            background-color: {"#1e1e1e" if modo else "white"} !important;
-            color: {"white" if modo else "black"} !important;
+            background-color: {fondo} !important;
+            color: {texto} !important;
         }}
-        .stTextInput>div>div>input,
-        .stTextArea>div>textarea,
-        .stSelectbox>div>div>div>div,
-        .stRadio>div>label,
-        .stButton>button {{
-            background-color: {"#2a2a2a" if modo else "#f9f9f9"} !important;
-            color: {"white" if modo else "black"} !important;
-            border: 1px solid {"#ccc" if not modo else "#555"} !important;
-            border-radius: 8px !important;
+        input, textarea, select {{
+            background-color: {fondo} !important;
+            color: {texto} !important;
+            border: 1px solid {borde_input} !important;
         }}
-        .sidebar .sidebar-content {{
-            background-color: #c7f3ef !important;
+        .stTextInput > div > div > input {{
+            background-color: {fondo} !important;
+            color: {texto} !important;
         }}
         .stSidebar {{
-            background-color: #c7f3ef !important;
+            background-color: #a2ded0 !important;
+        }}
+        button {{
+            background-color: #44bba4 !important;
+            color: white !important;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }}
+        button:hover {{
+            background-color: #379d8e !important;
         }}
         </style>
-        """, unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
-aplicar_tema()
 
-# Header con logo
-col_logo, col_titulo, col_vacio = st.columns([1, 4, 1])
-with col_logo:
-    try:
-        logo = Image.open("logobiblioteca.png")
-        st.image(logo, width=80)
-    except:
-        pass
-with col_titulo:
-    st.markdown(
-        "<h1 style='text-align: center; color: #1abc9c; font-size: 36px;'>Biblioteca Alejandría</h1>",
-        unsafe_allow_html=True
-    )
+def pantalla_inicio(usuario):
+    aplicar_tema_estilo()
 
-# Menú lateral si hay sesión
-if st.session_state.usuario and st.session_state.vista not in ["recuperar", "registro"]:
-    st.sidebar.markdown("### Menú")
-    opcion = st.sidebar.selectbox("", ["Inicio", "Mis libros guardados", "Mi perfil", "Cerrar sesión"])
+    # Logo y título
+    st.markdown("""
+        <div style='text-align:center'>
+            <img src='https://i.imgur.com/C9ZCjBz.png' width='100' style='margin-bottom: 0;'/>
+            <h1 style='margin-top: 0;'>Biblioteca Alejandría</h1>
+        </div>
+    """, unsafe_allow_html=True)
 
-    if opcion == "Inicio":
-        st.session_state.vista = "inicio"
-    elif opcion == "Mis libros guardados":
-        st.session_state.vista = "guardados"
-    elif opcion == "Mi perfil":
-        st.session_state.vista = "perfil"
-    elif opcion == "Cerrar sesión":
-        st.session_state.vista = "login"
-        st.session_state.usuario = None
-        st.rerun()
+    # Tema botón icono
+    with st.sidebar:
+        if "modo_oscuro" not in st.session_state:
+            st.session_state.modo_oscuro = False
+        modo = st.session_state.modo_oscuro
+        icono = "💡" if not modo else "💤"
+        if st.button("Cambiar tema"):
+            st.session_state.modo_oscuro = not modo
+            st.rerun()
 
-# Botón tema modo claro/oscuro (con icono no emoji)
-col_esquina = st.columns([12, 1])[1]
-with col_esquina:
-    if st.button("", key="toggle_tema", help="Cambiar tema"):
-        st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-        st.rerun()
+    # Contenido principal
+    st.subheader(f"Bienvenido, {usuario['nombre']} {usuario['apellido']}")
+    consulta = st.text_input("Buscar libros por título, tema o autor")
+    col1, col2 = st.columns(2)
+    idioma = col1.selectbox("Idioma", ["Todos", "es", "en", "fr", "de", "it", "pt"])
+    pais = col2.selectbox("País", ["Todos", "PE", "US", "ES", "FR", "AR"])
 
-# Control de navegación
-vista = st.session_state.vista
-usuario = st.session_state.usuario
+    col_izq, col_der = st.columns([3, 1.5])
 
-if vista == "login":
-    acceso, user = login.login()
-    if acceso:
-        st.session_state.usuario = user
-        st.session_state.vista = "inicio"
-        st.rerun()
+    with col_der:
+        st.markdown("<h3>Recomendaciones</h3>", unsafe_allow_html=True)
+        temas = ["historia", "filosofía", "ciencia", "novela", "fantasía", "autoayuda"]
+        sugerencias = buscar_libros_api(random.choice(temas), idioma="Todos", pais="Todos")[:5]
+        for s in sugerencias:
+            st.markdown(f"<strong>{s['titulo']}</strong>", unsafe_allow_html=True)
+            if s.get("imagen"):
+                st.image(s["imagen"], width=100)
+            if s.get("enlace"):
+                st.markdown(f"<a href='{s['enlace']}' target='_blank'><button>Leer libro</button></a>", unsafe_allow_html=True)
+            st.markdown("<hr>", unsafe_allow_html=True)
 
-elif vista == "registro":
-    registro.registrar_usuario()
+    with col_izq:
+        if consulta:
+            resultados = buscar_libros_api(consulta, idioma=idioma, pais=pais)
+            if resultados:
+                for idx, libro in enumerate(resultados):
+                    st.markdown("<hr>", unsafe_allow_html=True)
+                    c1, c2 = st.columns([1, 3])
+                    with c1:
+                        if libro.get("imagen"):
+                            st.image(libro["imagen"], width=130)
+                    with c2:
+                        st.subheader(libro["titulo"])
+                        st.markdown(f"<strong>Autores:</strong> {libro.get('autores', 'Desconocido')}", unsafe_allow_html=True)
+                        with st.expander("Descripción"):
+                            st.write(libro.get("descripcion", "Sin descripción"))
 
-elif vista == "recuperar":
-    recuperar.recuperar_contrasena()
+                        if st.button(f"Guardar para leer después", key=f"guardar_{idx}"):
+                            guardar_libro_para_usuario(usuario["correo"], libro)
+                            st.success("Libro guardado exitosamente.")
 
-elif vista == "inicio":
-    inicio.pantalla_inicio(usuario)
+                        if libro.get("enlace"):
+                            st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
-elif vista == "perfil":
-    perfil.mostrar_perfil(usuario)
+                        st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
+                        estrellas = st.radio("Selecciona estrellas", [1, 2, 3, 4, 5], horizontal=True, key=f"rate_{idx}")
+                        comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
+                        if st.button("Enviar reseña", key=f"resena_{idx}"):
+                            guardar_reseña(usuario["correo"], libro["titulo"], estrellas, comentario)
+                            st.success("¡Gracias por tu reseña!")
 
-elif vista == "guardados":
-    st.title("Mis libros guardados")
-    libros = obtener_libros_guardados(usuario["correo"])
+                        reseñas = obtener_reseñas(libro["titulo"])
+                        if reseñas:
+                            st.markdown("<h4>Comentarios de otros usuarios:</h4>", unsafe_allow_html=True)
+                            for r in reseñas:
+                                st.markdown(f"<b>{r['correo']}</b>: {mostrar_estrellas(r['estrellas'])}", unsafe_allow_html=True)
+                                if r["comentario"]:
+                                    st.markdown(f"<blockquote>{r['comentario']}</blockquote>", unsafe_allow_html=True)
 
-    if libros:
-        for i, libro in enumerate(libros):
-            st.markdown("---")
-            cols = st.columns([1, 5, 1])
-
-            with cols[0]:
-                if libro["imagen"]:
-                    st.image(libro["imagen"], width=100)
-
-            with cols[1]:
-                st.subheader(libro["titulo"])
-                st.markdown(f"**Autores:** {libro.get('autores', 'Desconocido')}")
-                with st.expander("Descripción"):
-                    st.write(libro["descripcion"])
-
-            with cols[2]:
-                if st.button("Leer", key=f"leer_{i}"):
-                    url_google = f"https://www.google.com/search?q={libro['titulo'].replace(' ', '+')}"
-                    st.markdown(f"[Abrir libro en Google Books]({url_google})", unsafe_allow_html=True)
-
-                if st.button("Eliminar", key=f"eliminar_{i}"):
-                    from acciones_libros import eliminar_libro_guardado
-                    eliminar_libro_guardado(usuario["correo"], libro["titulo"])
-                    st.success("Libro eliminado.")
-                    st.rerun()
+    # Recomendaciones personalizadas
+    st.markdown("<h3>Recomendaciones para ti</h3>", unsafe_allow_html=True)
+    edad = usuario.get("edad", 25)
+    genero = usuario.get("genero", "Otro")
+    if edad < 18:
+        st.info("Recomendamos libros juveniles y aventuras.")
+    elif genero == "Femenino":
+        st.info("Explora novelas históricas y autoayuda.")
     else:
-        st.info("No has guardado ningún libro aún.")
+        st.info("Revisa ciencia, historia, tecnología y negocios.")
