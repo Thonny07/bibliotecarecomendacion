@@ -69,13 +69,6 @@ def aplicar_tema_estilo():
 def pantalla_inicio(usuario):
     aplicar_tema_estilo()
 
-    st.markdown("""
-        <div style='text-align:center;'>
-            <img src='logobiblioteca.png' width='100'/>
-            <h1 style='margin: 5px;'>Biblioteca Alejandria</h1>
-        </div>
-    """, unsafe_allow_html=True)
-
     with st.sidebar:
         if "modo_oscuro" not in st.session_state:
             st.session_state.modo_oscuro = False
