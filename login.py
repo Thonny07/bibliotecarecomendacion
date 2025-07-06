@@ -21,7 +21,7 @@ def login():
     acceso = False
     usuario = None
 
-    # CSS para centrar y limitar ancho real del contenido
+    # CSS personalizado
     st.markdown("""
         <style>
         body {
@@ -41,12 +41,22 @@ def login():
                 color: white;
             }
         }
-        .login-title {
+        .logo-img {
+            display: block;
+            margin: 0 auto;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .app-name {
             text-align: center;
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+            font-weight: bold;
             color: #3bb3d4;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
         }
         .stTextInput input {
             font-size: 0.95rem !important;
@@ -68,17 +78,16 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
-    # Contenedor centrado
     with st.container():
         st.markdown('<div class="custom-box">', unsafe_allow_html=True)
 
-        # Mostrar logo
-        st.image("logobiblioteca.png", width=80)
+        # LOGO centrado, circular, grande
+        st.markdown('<img src="logobiblioteca.png" class="logo-img">', unsafe_allow_html=True)
 
-        # Título
-        st.markdown('<div class="login-title">Iniciar sesión</div>', unsafe_allow_html=True)
+        # Nombre debajo del logo
+        st.markdown('<div class="app-name">Biblioteca Alejandría</div>', unsafe_allow_html=True)
 
-        # Entradas de usuario
+        # Entradas
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
 
