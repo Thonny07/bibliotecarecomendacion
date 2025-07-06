@@ -17,10 +17,10 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 def login():
-    # Set page config for a wider layout if preferred, or remove for default
-    st.set_page_config(layout="centered", initial_sidebar_state="collapsed")
+    # Set page config once at the beginning. "centered" is usually good for forms.
+    st.set_page_config(layout="centered", initial_sidebar_state="collapsed", page_title="Biblioteca Alejandría Login")
 
-    # Inject custom CSS for the desired design
+    # --- Custom CSS for the desired design ---
     st.markdown("""
     <style>
     /* General body and app styling */
@@ -40,13 +40,16 @@ def login():
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-direction: column; /* Align items vertically */
         min-height: 100vh; /* Ensure it takes full viewport height for centering */
         padding-top: 0rem; /* Remove default padding */
         padding-bottom: 0rem;
+        width: 100%; /* Ensure it uses full width for columns */
+        max-width: 100%; /* Override any default max-width */
     }
 
     /* The main white card container for the login form */
-    .login-card {
+    .stContainer { /* Target Streamlit's container component */
         background-color: white;
         padding: 40px 50px; /* Increased padding for more space */
         border-radius: 10px;
@@ -191,101 +194,120 @@ def login():
     </style>
     """, unsafe_allow_html=True)
 
-    # Start the main login card container
-    st.markdown('<div class="login-card">', unsafe_allow_html=True)
+    # --- Use Streamlit's column system to center the content ---
+    # Create three columns: left_spacer, main_content_column, right_spacer
+    # This helps center the content reliably.
+    col_left, col_main, col_right = st.columns([1, 2, 1]) # Adjust ratios as needed for centering
 
-    # Theme button (positioned absolutely within the card)
-    st.markdown('<div class="theme-button-wrapper">', unsafe_allow_html=True)
-    icono = "💡 Tema" # Changed to text + icon as in the target image for the button
-    if st.button(icono, key="tema_btn_top"): # Unique key for this button
-        st.session_state.modo_oscuro = not st.session_state.get("modo_oscuro", False)
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    with col_main:
+        # --- Start the main white card container using st.container ---
+        # Apply a class to this container for CSS targeting
+        with st.container():
+            st.markdown('<div class="login-card">', unsafe_allow_html=True) # This div is mainly for the CSS target for positioning internal elements
 
-    # Header section: Logo and Title
-    st.markdown('<div class="header-content">', unsafe_allow_html=True)
-    st.markdown('<div class="logo-placeholder">Logo</div>', unsafe_allow_html=True) # Placeholder for actual logo
-    st.markdown('<div class="title-text">Biblioteca Alejandría</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+            # Theme button (positioned absolutely within the card div)
+            st.markdown('<div class="theme-button-wrapper">', unsafe_allow_html=True)
+            icono = "💡 Tema"
+            # Ensure unique key for the button
+            if st.button(icono, key="theme_btn_top_right"):
+                st.session_state.modo_oscuro = not st.session_state.get("modo_oscuro", False)
+                st.rerun() # Rerun to apply theme changes
+            st.markdown('</div>', unsafe_allow_html=True)
 
-    # Login heading with lock icon
-    st.markdown('<div class="login-heading">🔒 Iniciar sesión</div>', unsafe_allow_html=True)
+            # Header section: Logo and Title
+            st.markdown('<div class="header-content">', unsafe_allow_html=True)
+            st.markdown('<div class="logo-placeholder"></div>', unsafe_allow_html=True) # Placeholder for actual logo. Removed "Logo" text.
+            st.markdown('<div class="title-text">Biblioteca Alejandría</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-    # Input fields
-    # Streamlit text_input widgets generate their own div structure, so we style their internals.
-    correo = st.text_input("", placeholder="Correo electrónico", key="email_input")
-    contrasena = st.text_input("", placeholder="Contraseña", type="password", key="password_input")
+            # Login heading with lock icon
+            st.markdown('<div class="login-heading">🔒 Iniciar sesión</div>', unsafe_allow_html=True)
 
-    acceso = False
-    usuario = None
+            # Input fields
+            # Use unique keys for text inputs as well
+            correo = st.text_input("", placeholder="Correo electrónico", key="email_input_login")
+            contrasena = st.text_input("", placeholder="Contraseña", type="password", key="password_input_login")
 
-    # Login button
-    if st.button("Iniciar sesión", key="login_btn"):
-        doc = db.collection("usuarios").document(correo).get()
-        if doc.exists:
-            datos = doc.to_dict()
-            if datos["contrasena"] == contrasena:
-                st.success(f"Bienvenido, {datos['nombre']}")
-                acceso = True
-                usuario = datos
-            else:
-                st.error("❌ Contraseña incorrecta")
-        else:
-            st.error("❌ Usuario no encontrado")
+            acceso = False
+            usuario = None
 
-    # "Registrarse" button
-    # Wrap in a div to apply specific secondary button styling
-    st.markdown('<div class="secondary-button">', unsafe_allow_html=True)
-    if st.button("Registrarse", key="register_btn"):
-        st.session_state.vista = "registro"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+            # Login button
+            if st.button("Iniciar sesión", key="login_main_btn"):
+                doc = db.collection("usuarios").document(correo).get()
+                if doc.exists:
+                    datos = doc.to_dict()
+                    if datos["contrasena"] == contrasena:
+                        st.success(f"Bienvenido, {datos['nombre']}")
+                        acceso = True
+                        usuario = datos
+                        # Set a session state for logged in user if successful
+                        st.session_state.logged_in_user = datos['nombre']
+                        st.session_state.vista = "dashboard" # Redirect to a dashboard or main page
+                        st.rerun()
+                    else:
+                        st.error("❌ Contraseña incorrecta")
+                else:
+                    st.error("❌ Usuario no encontrado")
 
-    # "¿Olvidaste tu contraseña?" button
-    # Wrap in a div for consistent styling, or apply directly if unique.
-    st.markdown('<div class="secondary-button">', unsafe_allow_html=True)
-    if st.button("¿Olvidaste tu contraseña?", key="forgot_password_btn"):
-        st.session_state.codigo_enviado = False
-        st.session_state.codigo_verificacion = ""
-        st.session_state.correo_recuperar = ""
-        st.session_state.vista = "recuperar"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+            # "Registrarse" button
+            st.markdown('<div class="secondary-button">', unsafe_allow_html=True)
+            if st.button("Registrarse", key="register_page_btn"):
+                st.session_state.vista = "registro"
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
+            # "¿Olvidaste tu contraseña?" button
+            st.markdown('<div class="secondary-button">', unsafe_allow_html=True)
+            if st.button("¿Olvidaste tu contraseña?", key="forgot_password_page_btn"):
+                st.session_state.codigo_enviado = False
+                st.session_state.codigo_verificacion = ""
+                st.session_state.correo_recuperar = ""
+                st.session_state.vista = "recuperar"
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True) # Close login-card
+            st.markdown('</div>', unsafe_allow_html=True) # Close login-card div
+        # st.container context automatically closes here
 
     return acceso, usuario
 
-# Main application logic to handle different views
+# --- Main Application Flow (outside the login function) ---
 if __name__ == "__main__":
     if "vista" not in st.session_state:
         st.session_state.vista = "login"
-
+    
+    # Handle routing based on session state
     if st.session_state.vista == "login":
-        acceso, usuario = login()
-        if acceso:
-            st.write(f"Acceso concedido para: {usuario['nombre']}")
-            # In a real app, you would redirect to a different page or show main content
-            # For this example, we just display a message
+        login() # Call the login function
     elif st.session_state.vista == "registro":
         st.title("Página de Registro")
         st.write("Aquí iría el formulario de registro.")
-        # Example registration fields (not implemented fully for this request)
-        # st.text_input("Nombre de Usuario")
-        # st.text_input("Correo Electrónico")
-        # st.text_input("Contraseña", type="password")
-        # st.text_input("Confirmar Contraseña", type="password")
-        # st.button("Crear Cuenta")
-        if st.button("Volver al Login"):
+        # Example registration fields (implement your actual registration logic here)
+        # nombre_registro = st.text_input("Nombre Completo")
+        # email_registro = st.text_input("Correo Electrónico")
+        # pass_registro = st.text_input("Contraseña", type="password")
+        # confirm_pass_registro = st.text_input("Confirmar Contraseña", type="password")
+        # if st.button("Crear Cuenta"):
+        #     # Add user to Firestore
+        #     pass
+        if st.button("Volver al Login", key="back_to_login_from_register"):
             st.session_state.vista = "login"
             st.rerun()
     elif st.session_state.vista == "recuperar":
         st.title("Recuperar Contraseña")
         st.write("Aquí iría el proceso para recuperar la contraseña.")
-        # Example recovery fields (not implemented fully for this request)
-        # st.text_input("Correo Electrónico")
-        # st.button("Enviar Código")
-        if st.button("Volver al Login"):
+        # Example recovery fields (implement your actual recovery logic here)
+        # email_recovery = st.text_input("Correo Electrónico para recuperación")
+        # if st.button("Enviar Código de Verificación"):
+        #     # Send email logic
+        #     pass
+        if st.button("Volver al Login", key="back_to_login_from_recovery"):
+            st.session_state.vista = "login"
+            st.rerun()
+    elif st.session_state.vista == "dashboard":
+        st.title(f"Bienvenido al Dashboard, {st.session_state.get('logged_in_user', 'Usuario')}!")
+        st.write("Este es el contenido principal de la aplicación después de iniciar sesión.")
+        if st.button("Cerrar Sesión", key="logout_btn"):
+            del st.session_state.logged_in_user
             st.session_state.vista = "login"
             st.rerun()
