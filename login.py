@@ -25,25 +25,28 @@ def login():
     # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
-        /* Eliminar headers y toolbars */
-        header, footer, .block-container {
+        /* OCULTAR HEADERS Y RECTÁNGULOS RESIDUALES */
+        header, footer {
             visibility: hidden !important;
-            height: 0 !important;
-            padding: 0 !important;
+            height: 0px !important;
+        }
+
+        /* ESTA CLASE ES LA QUE CREA ESE RECTÁNGULO NEGRO SUPERIOR */
+        .css-18ni7ap.e8zbici2, .css-1avcm0n.e8zbici2, .css-1dp5vir.e1tzin5v1 {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            height: 0px !important;
             margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
         }
 
-        /* Contenedor principal con margen superior eliminado */
-        .main {
-            padding-top: 0rem !important;
-        }
-
-        /* Caja del formulario */
+        /* CONTENEDOR PRINCIPAL */
         .login-container {
             background-color: white;
             border-radius: 20px;
-            padding: 2rem 2.5rem;
-            max-width: 420px;
+            padding: 2.5rem;
+            max-width: 450px;
             margin: 3rem auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
@@ -54,45 +57,37 @@ def login():
                 background-color: #1e1e1e;
                 color: white;
             }
-            input, textarea {
+            input {
                 background-color: #333 !important;
                 color: white !important;
                 border: 1px solid #777 !important;
             }
         }
 
+        /* LOGO */
         .logo-img {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             object-fit: cover;
             display: block;
             margin: 0 auto 1rem auto;
         }
 
+        /* TÍTULO */
         .login-title {
-            font-size: 1.7rem;
+            font-size: 2rem;
             font-weight: bold;
             margin-bottom: 1.5rem;
             color: #20c997;
         }
 
-        label {
-            color: black !important;
-            font-weight: 500;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            label {
-                color: white !important;
-            }
-        }
-
+        /* BOTONES */
         .stButton>button {
             background-color: #20c997;
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 10px;
             font-weight: bold;
             transition: 0.3s;
@@ -101,22 +96,21 @@ def login():
 
         .stButton>button:hover {
             background-color: #17a88b;
+            color: white;
         }
 
-        .stTextInput>div>div>input {
-            border-radius: 8px !important;
+        /* ETIQUETAS */
+        label {
+            color: black !important;
+            font-weight: bold;
         }
 
+        /* MENSAJE CAMPOS INCOMPLETOS */
         .warning-text {
             color: black !important;
             font-weight: bold;
         }
 
-        @media (prefers-color-scheme: dark) {
-            .warning-text {
-                color: white !important;
-            }
-        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -142,7 +136,7 @@ def login():
     contrasena = st.text_input("Contraseña", type="password", key="contrasena")
 
     # ---------- BOTONES ----------
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 1])
     with col1:
         if st.button("Iniciar sesión"):
             if not correo or not contrasena:
