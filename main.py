@@ -6,6 +6,7 @@ import inicio
 import recuperar
 import perfil
 from acciones_libros import obtener_libros_guardados
+from io import BytesIO
 
 # Configuración de la página
 st.set_page_config(layout="wide")
@@ -55,67 +56,50 @@ def aplicar_tema():
 
 aplicar_tema()
 
-# Encabezado con logo y nombre centrados, y botón de tema a la derecha
+# Estilo y encabezado con logo circular y título
 st.markdown("""
     <style>
-    .header-row {
+    .encabezado-container {
         display: flex;
+        justify-content: center;
         align-items: center;
-        justify-content: space-between;
         margin-top: 10px;
         margin-bottom: 20px;
-    }
-    .logo-titulo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-    }
-    .logo {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 20px;
     }
     .titulo {
         font-size: 36px;
         font-weight: bold;
-        margin: 0;
+        margin: 0 0 0 20px;
     }
     </style>
-    <div class="header-row">
-        <div class="logo-titulo">
-            <img src="logobiblioteca.png" class="logo"/>
-            <div class="titulo">Biblioteca Alejandría</div>
-        </div>
-        <div>
-            <form action="" method="post">
-                <button name="toggle" style="
-                    background-color: #44bba4;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 5px;
-                    font-size: 16px;
-                    cursor: pointer;
-                ">Tema {"💡" if not st.session_state.modo_oscuro else "🔦"}</button>
-            </form>
-        </div>
-    </div>
 """, unsafe_allow_html=True)
 
-# Lógica para el botón de tema
-if st.session_state.get("toggle_tema_button", False):
-    st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-    st.session_state.toggle_tema_button = False
-    st.rerun()
+st.markdown('<div class="encabezado-container">', unsafe_allow_html=True)
+try:
+    logo = Image.open("logobiblioteca.png").resize((80, 80))
+    circ_logo = Image.new("RGBA", logo.size)
+    mask = Image.new("L", logo.size, 0)
+    from PIL import ImageDraw
+    ImageDraw.Draw(mask).ellipse((0, 0) + logo.size, fill=255)
+    circ_logo.paste(logo, (0, 0), mask=mask)
+    buf = BytesIO()
+    circ_logo.save(buf, format="PNG")
+    st.image(buf.getvalue(), width=80)
+except:
+    st.warning("No se pudo cargar el logo")
 
-# Captura clic manual del botón por HTML
-if "toggle" in st.experimental_get_query_params():
-    st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-    st.experimental_set_query_params()
-    st.rerun()
+st.markdown('<div class="titulo">Biblioteca Alejandría</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Botón "Tema" a la derecha
+with st.container():
+    col_btn = st.columns([10, 1])[1]
+    with col_btn:
+        tema_texto = "Tema"
+        icono = "💡" if not st.session_state.modo_oscuro else "🔦"
+        if st.button(f"{tema_texto} {icono}", key="toggle_tema"):
+            st.session_state.modo_oscuro = not st.session_state.modo_oscuro
+            st.rerun()
 
 # Estado inicial de navegación
 if "vista" not in st.session_state:
