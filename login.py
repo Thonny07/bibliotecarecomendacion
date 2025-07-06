@@ -71,33 +71,44 @@ def login():
     # Contenedor centrado
     with st.container():
         st.markdown('<div class="custom-box">', unsafe_allow_html=True)
+
+        # Mostrar logo
+        st.image("logobiblioteca.png", width=80)
+
+        # Título
         st.markdown('<div class="login-title">Iniciar sesión</div>', unsafe_allow_html=True)
 
+        # Entradas de usuario
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
 
-        # Botones en columnas internas
+        # Botones
         col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("Iniciar sesión"):
-                doc = db.collection("usuarios").document(correo).get()
-                if doc.exists:
-                    datos = doc.to_dict()
-                    if datos["contrasena"] == contrasena:
-                        st.success(f"Bienvenido, {datos['nombre']} 👋")
-                        acceso = True
-                        usuario = datos
-                    else:
-                        st.error("❌ Contraseña incorrecta")
+                if not correo or not contrasena:
+                    st.warning("❌ Campos incompletos")
                 else:
-                    st.error("❌ Usuario no encontrado")
+                    try:
+                        doc = db.collection("usuarios").document(correo).get()
+                        if doc.exists:
+                            datos = doc.to_dict()
+                            if datos["contrasena"] == contrasena:
+                                st.success(f"Bienvenido, {datos['nombre']} 👋")
+                                acceso = True
+                                usuario = datos
+                            else:
+                                st.error("❌ Contraseña incorrecta")
+                        else:
+                            st.error("❌ Usuario no encontrado")
+                    except Exception as e:
+                        st.error(f"⚠️ Error al iniciar sesión")
         with col2:
             if st.button("Registrarse"):
                 st.session_state.vista = "registro"
                 st.rerun()
 
         st.divider()
-
         if st.button("¿Olvidaste tu contraseña?"):
             st.session_state.codigo_enviado = False
             st.session_state.codigo_verificacion = ""
