@@ -6,9 +6,10 @@ import inicio
 import recuperar
 import perfil
 from acciones_libros import obtener_libros_guardados
+import base64
 
 # -------- Configuración de página --------
-st.set_page_config(layout="wide", page_title="Biblioteca Alejandría", page_icon="📖")
+st.set_page_config(layout="wide")
 
 # -------- Estado inicial de tema --------
 if "modo_oscuro" not in st.session_state:
@@ -24,7 +25,13 @@ def aplicar_tema():
                 color: white !important;
             }
             .stSidebar {
-                background-color: #44bba4 !important;
+                background-color: #a2ded0 !important;
+            }
+            input, textarea, select {
+                background-color: #2c2c2c !important;
+                color: white !important;
+                border: 1px solid #ccc !important;
+                border-radius: 8px;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -38,18 +45,35 @@ def aplicar_tema():
             .stSidebar {
                 background-color: #a2ded0 !important;
             }
+            input, textarea, select {
+                background-color: white !important;
+                color: black !important;
+                border: 1px solid #aaa !important;
+                border-radius: 8px;
+            }
             </style>
         """, unsafe_allow_html=True)
 
 aplicar_tema()
 
-# -------- Encabezado con logo y título centrado --------
-st.markdown("""
-    <div style='text-align:center; display:flex; flex-direction:row; justify-content:center; align-items:center; gap:20px; margin-bottom:30px;'>
-        <img src='logobiblioteca.png' width='60' />
-        <h1 style='margin: 0;'>Biblioteca Alejandría</h1>
-    </div>
-""", unsafe_allow_html=True)
+# -------- Logo y título centrado --------
+def mostrar_logo_titulo():
+    try:
+        with open("logobiblioteca.png", "rb") as f:
+            img_bytes = f.read()
+            img_b64 = base64.b64encode(img_bytes).decode()
+            data_uri = f"data:image/png;base64,{img_b64}"
+
+        st.markdown(f"""
+            <div style='display: flex; align-items: center; justify-content: center; margin-top: 10px;'>
+                <img src="{data_uri}" alt="Logo" width="60" style='margin-right: 15px;' />
+                <h1 style='margin: 0; font-size: 36px;'>Biblioteca Alejandría</h1>
+            </div>
+        """, unsafe_allow_html=True)
+    except:
+        st.warning("No se pudo cargar el logo")
+
+mostrar_logo_titulo()
 
 # -------- Estado inicial de navegación --------
 if "vista" not in st.session_state:
@@ -75,10 +99,10 @@ if st.session_state.usuario and st.session_state.vista not in ["recuperar", "reg
         st.rerun()
 
 # -------- Botón de cambio de tema --------
-if st.session_state.usuario and st.session_state.vista not in ["recuperar", "registro"]:
-    if st.button("Cambiar tema"):
-        st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-        st.rerun()
+icono_foco = "💡" if not st.session_state.modo_oscuro else "🌙"
+if st.button("Cambiar tema"):
+    st.session_state.modo_oscuro = not st.session_state.modo_oscuro
+    st.rerun()
 
 # -------- Control de navegación --------
 if st.session_state.vista == "login":
@@ -102,7 +126,6 @@ elif st.session_state.vista == "perfil":
 
 elif st.session_state.vista == "guardados":
     st.title("Mis libros guardados")
-
     libros = obtener_libros_guardados(st.session_state.usuario["correo"])
 
     if libros:
@@ -122,11 +145,11 @@ elif st.session_state.vista == "guardados":
                     st.write(libro["descripcion"])
 
             with cols[2]:
-                if st.button("Leer", key=f"leer_{i}"):
+                if st.button(f"Leer", key=f"leer_{i}"):
                     url_google = f"https://www.google.com/search?q={libro['titulo'].replace(' ', '+')}"
                     st.markdown(f"[Abrir libro en Google Books]({url_google})", unsafe_allow_html=True)
 
-                if st.button("Eliminar", key=f"eliminar_{i}"):
+                if st.button(f"Eliminar", key=f"eliminar_{i}"):
                     from acciones_libros import eliminar_libro_guardado
                     eliminar_libro_guardado(st.session_state.usuario["correo"], libro["titulo"])
                     st.success("Libro eliminado.")
