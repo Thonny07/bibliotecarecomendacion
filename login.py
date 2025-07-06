@@ -25,13 +25,17 @@ def login():
     # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
-        /* Ocultar el header superior y ajustar todo */
-        header, footer {visibility: hidden;}
+        /* OCULTAR HEADER, FOOTER Y RECTÁNGULOS DEFAULT */
+        header, footer, .css-18ni7ap.e8zbici2, .css-1avcm0n.e8zbici2 {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0px !important;
+        }
         .block-container {
             padding-top: 0rem !important;
         }
 
-        /* Contenedor principal centrado */
+        /* CONTENEDOR PRINCIPAL */
         .login-container {
             background-color: white;
             border-radius: 20px;
@@ -42,7 +46,6 @@ def login():
             text-align: center;
         }
 
-        /* Modo oscuro */
         @media (prefers-color-scheme: dark) {
             .login-container {
                 background-color: #1e1e1e;
@@ -55,7 +58,7 @@ def login():
             }
         }
 
-        /* Logo */
+        /* LOGO */
         .logo-img {
             width: 130px;
             height: 130px;
@@ -65,7 +68,7 @@ def login():
             margin: 0 auto 1rem auto;
         }
 
-        /* Título */
+        /* TÍTULO */
         .login-title {
             font-size: 2rem;
             font-weight: bold;
@@ -73,7 +76,7 @@ def login():
             color: #20c997;
         }
 
-        /* Botones */
+        /* BOTONES */
         .stButton>button {
             background-color: #20c997;
             color: white;
@@ -90,13 +93,13 @@ def login():
             color: white;
         }
 
-        /* Etiquetas */
+        /* ETIQUETAS */
         label {
             color: black !important;
             font-weight: bold;
         }
 
-        /* Texto de advertencia */
+        /* MENSAJE CAMPOS INCOMPLETOS */
         .warning-text {
             color: black !important;
             font-weight: bold;
