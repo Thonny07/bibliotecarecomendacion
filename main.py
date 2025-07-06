@@ -55,26 +55,6 @@ def aplicar_tema():
 
 aplicar_tema()
 
-# Encabezado con logo, título y botón de tema alineados
-logo_col, titulo_col, tema_col = st.columns([1, 5, 1])
-
-with logo_col:
-    try:
-        logo = Image.open("logobiblioteca.png")
-        st.image(logo, width=80)
-    except:
-        st.warning("⚠️ No se pudo cargar el logo")
-
-with titulo_col:
-    st.markdown("<h1 style='text-align: center; margin-top: 18px;'>Biblioteca Alejandría</h1>", unsafe_allow_html=True)
-
-with tema_col:
-    tema_texto = "Tema"
-    icono = "💡" if not st.session_state.modo_oscuro else "🔦"
-    if st.button(f"{tema_texto} {icono}", key="toggle_tema"):
-        st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-        st.rerun()
-
 # Estado inicial de navegación
 if "vista" not in st.session_state:
     st.session_state.vista = "login"
