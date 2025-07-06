@@ -3,33 +3,69 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import json  # Necesario para convertir el string del secret
 
-# ---------- CONFIGURACIÓN GLOBAL ----------
-st.set_page_config(page_title="Login", layout="centered")
+# ---------- CONFIGURACIÓN GENERAL ----------
+st.set_page_config(page_title="Iniciar sesión", layout="centered")
 
+# ---------- ESTILO PERSONALIZADO DINÁMICO ----------
 st.markdown("""
     <style>
         html, body, [class*="stApp"] {
-            background-color: #E0F7FA;
-            height: 100%;
-            overflow: hidden;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', sans-serif;
+            transition: all 0.3s ease-in-out;
         }
-        .login-container {
+        .login-card {
             background-color: white;
-            padding: 40px 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            width: 380px;
-            margin: auto;
-            margin-top: 8vh;
-        }
-        .stButton>button {
+            color: black;
+            max-width: 400px;
             width: 100%;
-            margin-top: 10px;
-            background-color: #0288D1;
+            margin: 5vh auto;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+        @media (prefers-color-scheme: dark) {
+            .login-card {
+                background-color: #1e1e1e;
+                color: white;
+            }
+        }
+        .login-title {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .login-button button {
+            background-color: #4FC3F7;
             color: white;
+            border: none;
+            padding: 0.6rem;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .login-button button:hover {
+            background-color: #03A9F4;
         }
         .stTextInput>div>input {
+            border-radius: 10px;
+            padding: 0.5rem;
             text-align: center;
+        }
+        .forgot-button button {
+            background: none !important;
+            color: #0288D1;
+            font-size: 0.9rem;
+            text-decoration: underline;
+            border: none;
+            margin-top: 1rem;
+        }
+        hr {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -48,17 +84,15 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# ---------- FUNCIÓN LOGIN ----------
+# ---------- LOGIN ----------
 def login():
     acceso = False
     usuario = None
 
-    # Contenedor visual
     with st.container():
-        st.markdown('<div class="login-container">', unsafe_allow_html=True)
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
 
-        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Generic_Login_Icon.svg/1200px-Generic_Login_Icon.svg.png", width=80)
-        st.markdown("### 🔐 Iniciar sesión")
+        st.markdown('<div class="login-title">🔐 Iniciar sesión</div>', unsafe_allow_html=True)
 
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
@@ -66,32 +100,29 @@ def login():
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button("Iniciar sesión"):
-                if not correo or not contrasena:
-                    st.warning("⚠️ Completa ambos campos antes de continuar.")
-                else:
-                    try:
-                        doc = db.collection("usuarios").document(correo).get()
-                        if doc.exists:
-                            datos = doc.to_dict()
-                            if datos["contrasena"] == contrasena:
-                                st.success(f"Bienvenido, {datos['nombre']} 👋")
-                                acceso = True
-                                usuario = datos
-                            else:
-                                st.error("❌ Contraseña incorrecta")
+            with st.container():
+                if st.button("Iniciar sesión", key="btn_login"):
+                    doc = db.collection("usuarios").document(correo).get()
+                    if doc.exists:
+                        datos = doc.to_dict()
+                        if datos["contrasena"] == contrasena:
+                            st.success(f"Bienvenido, {datos['nombre']} 👋")
+                            acceso = True
+                            usuario = datos
                         else:
-                            st.error("❌ Usuario no encontrado")
-                    except Exception as e:
-                        st.error(f"❌ Error de conexión: {e}")
+                            st.error("❌ Contraseña incorrecta")
+                    else:
+                        st.error("❌ Usuario no encontrado")
 
         with col2:
-            if st.button("Registrarse"):
-                st.session_state.vista = "registro"
-                st.rerun()
+            with st.container():
+                if st.button("Registrarse", key="btn_register"):
+                    st.session_state.vista = "registro"
+                    st.rerun()
 
-        st.markdown("---")
-        if st.button("¿Olvidaste tu contraseña?"):
+        st.markdown("<hr>", unsafe_allow_html=True)
+
+        if st.button("¿Olvidaste tu contraseña?", key="btn_forgot", type="primary"):
             st.session_state.codigo_enviado = False
             st.session_state.codigo_verificacion = ""
             st.session_state.correo_recuperar = ""
