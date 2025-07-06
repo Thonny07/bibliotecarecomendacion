@@ -22,26 +22,27 @@ def login():
     acceso = False
     usuario = None
 
-    # ---------- CSS personalizado ----------
+    # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
-        /* Quitar espacios externos y fondo del body */
-        .main, .block-container {
+        /* Ocultar el header superior y ajustar todo */
+        header, footer {visibility: hidden;}
+        .block-container {
             padding-top: 0rem !important;
-            padding-bottom: 0rem !important;
-            background-color: white !important;
         }
-        header {visibility: hidden;}
-        
+
+        /* Contenedor principal centrado */
         .login-container {
-            background-color: rgba(255,255,255,0.95);
+            background-color: white;
             border-radius: 20px;
             padding: 2.5rem;
             max-width: 450px;
-            margin: 2rem auto;
+            margin: 3rem auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
         }
+
+        /* Modo oscuro */
         @media (prefers-color-scheme: dark) {
             .login-container {
                 background-color: #1e1e1e;
@@ -53,12 +54,26 @@ def login():
                 border: 1px solid #777 !important;
             }
         }
+
+        /* Logo */
+        .logo-img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto 1rem auto;
+        }
+
+        /* Título */
         .login-title {
             font-size: 2rem;
             font-weight: bold;
             margin-bottom: 1.5rem;
             color: #20c997;
         }
+
+        /* Botones */
         .stButton>button {
             background-color: #20c997;
             color: white;
@@ -69,14 +84,19 @@ def login():
             transition: 0.3s;
             width: 100%;
         }
+
         .stButton>button:hover {
-            background-color: #1aa179;
+            background-color: #17a88b;
             color: white;
         }
+
+        /* Etiquetas */
         label {
             color: black !important;
             font-weight: bold;
         }
+
+        /* Texto de advertencia */
         .warning-text {
             color: black !important;
             font-weight: bold;
@@ -84,31 +104,28 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
-    # ---------- Contenedor principal ----------
+    # ---------- CONTENEDOR PRINCIPAL ----------
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
 
-    # ---------- Logo centrado ----------
+    # ---------- LOGO ----------
     try:
         with open("logobiblioteca.png", "rb") as image_file:
             encoded = base64.b64encode(image_file.read()).decode()
             st.markdown(
-                f"""
-                <img src="data:image/png;base64,{encoded}" 
-                     style="width: 130px; height: 130px; border-radius: 50%; margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto;">
-                """,
+                f'<img src="data:image/png;base64,{encoded}" class="logo-img">',
                 unsafe_allow_html=True
             )
-    except Exception:
-        st.warning("⚠️ No se pudo cargar el logo. Verifica la ruta y el nombre del archivo.")
+    except:
+        st.warning("⚠️ No se pudo cargar el logo.")
 
-    # ---------- Título ----------
+    # ---------- TÍTULO ----------
     st.markdown('<div class="login-title">Biblioteca Alejandría</div>', unsafe_allow_html=True)
 
-    # ---------- Campos de entrada ----------
+    # ---------- CAMPOS ----------
     correo = st.text_input("Correo electrónico", key="correo")
     contrasena = st.text_input("Contraseña", type="password", key="contrasena")
 
-    # ---------- Botones ----------
+    # ---------- BOTONES ----------
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button("Iniciar sesión"):
@@ -132,7 +149,6 @@ def login():
             st.session_state.vista = "registro"
             st.rerun()
 
-    # ---------- Cambiar contraseña ----------
     if st.button("¿Olvidaste tu contraseña?"):
         st.session_state.codigo_enviado = False
         st.session_state.codigo_verificacion = ""
