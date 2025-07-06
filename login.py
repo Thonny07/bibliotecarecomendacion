@@ -47,35 +47,61 @@ def login():
         .stButton > button:hover {{
             background-color: #379d8e;
         }}
+        .login-container {{
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            overflow: hidden;
+        }}
+        .left-side {{
+            width: 70%;
+        }}
+        .right-side {{
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }}
+        .theme-button {{
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
-    # Botón de tema arriba derecha
-    col_tema = st.columns([9, 1])[1]
-    with col_tema:
-        icono = "💡" if not modo_oscuro else "🔦"
-        if st.button(f"{icono}", key="tema_login"):
-            st.session_state.modo_oscuro = not modo_oscuro
-            st.rerun()
+    # Contenedor externo
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
 
-    # Pantalla dividida
-    col1, col2 = st.columns([7, 3])
-
-    with col1:
+    # Columna izquierda - Imagen
+    with st.container():
+        st.markdown('<div class="left-side">', unsafe_allow_html=True)
         try:
             st.image("portadalogin.png", use_container_width=True)
         except:
             st.warning("No se pudo cargar la imagen")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    with col2:
-        st.markdown(f"<div style='height: 95vh; display: flex; flex-direction: column; justify-content: center; align-items: center;'>", unsafe_allow_html=True)
+    # Columna derecha - Login y logo
+    with st.container():
+        st.markdown('<div class="right-side">', unsafe_allow_html=True)
+
+        # Botón de tema (arriba derecha)
+        st.markdown('<div class="theme-button">', unsafe_allow_html=True)
+        icono = "💡" if not modo_oscuro else "🔦"
+        if st.button(f"{icono}", key="tema_login"):
+            st.session_state.modo_oscuro = not modo_oscuro
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
         try:
             st.image("logobiblioteca.png", width=80)
         except:
             st.warning("No se pudo cargar el logo")
 
-        st.markdown(f"<h2 style='text-align: center; color: {texto}; margin-bottom: 30px;'>Biblioteca Alejandría</h2>", unsafe_allow_html=True)
+        st.markdown(f"<h2 style='text-align: center; color: {texto}; margin: 20px 0;'>Biblioteca Alejandría</h2>", unsafe_allow_html=True)
 
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
@@ -110,6 +136,7 @@ def login():
                 st.session_state.vista = "registro"
                 st.rerun()
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        return acceso, usuario
+    st.markdown('</div>', unsafe_allow_html=True)
+    return acceso, usuario
