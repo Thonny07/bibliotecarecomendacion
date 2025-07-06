@@ -33,34 +33,17 @@ def login():
     st.markdown(f"""
         <style>
         .main {{ padding-top: 2rem; }}
-        .login-box {{
-            max-width: 460px;
-            margin: 5vh auto;
-            background-color: #ffffff;
-            border-radius: 20px;
-            padding: 3rem 2rem;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            color: black;
-        }}
-        .login-title {{
-            background-color: orange;
-            padding: 1rem;
-            font-size: 1.8rem;
-            font-weight: bold;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-            color: black;
-        }}
         .logo-img {{
-            width: 140px;
-            height: 140px;
+            display: block;
+            margin: 0 auto 1rem auto;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 1rem;
         }}
         .app-name {{
-            font-size: 1.5rem;
+            text-align: center;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #3bb3d4;
             margin-bottom: 2rem;
@@ -85,63 +68,51 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
-    with st.container():
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+    # ✅ Mostrar logo circular en el centro y nombre debajo
+    st.markdown(f'<img class="logo-img" src="data:image/png;base64,{logo_base64}">', unsafe_allow_html=True)
+    st.markdown('<div class="app-name">Biblioteca Alejandría</div>', unsafe_allow_html=True)
 
-        # ✅ Rectángulo encima del logo (Iniciar sesión) en naranja
-        st.markdown('<div class="login-title">Iniciar sesión</div>', unsafe_allow_html=True)
+    # Campos de ingreso
+    correo = st.text_input("Correo electrónico")
+    contrasena = st.text_input("Contraseña", type="password")
 
-        # ✅ Logo centrado, grande y circular
-        st.markdown(f'''
-            <img class="logo-img" src="data:image/png;base64,{logo_base64}">
-        ''', unsafe_allow_html=True)
-
-        # ✅ Nombre de la biblioteca debajo del logo
-        st.markdown('<div class="app-name">Biblioteca Alejandría</div>', unsafe_allow_html=True)
-
-        # Campos de ingreso
-        correo = st.text_input("Correo electrónico")
-        contrasena = st.text_input("Contraseña", type="password")
-
-        # Botones
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
-            if st.button("Iniciar sesión", key="btn_login"):
-                if not correo or not contrasena:
-                    st.warning("⚠️ Campos incompletos")
-                else:
-                    doc = db.collection("usuarios").document(correo).get()
-                    if doc.exists:
-                        datos = doc.to_dict()
-                        if datos["contrasena"] == contrasena:
-                            st.success(f"Bienvenido, {datos['nombre']} 👋")
-                            acceso = True
-                            usuario = datos
-                        else:
-                            st.error("❌ Contraseña incorrecta")
-                    else:
-                        st.error("❌ Usuario no encontrado")
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        with col2:
-            st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
-            if st.button("Registrarse", key="btn_register"):
-                st.session_state.vista = "registro"
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        st.divider()
-
+    # Botones
+    col1, col2 = st.columns(2)
+    with col1:
         st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
-        if st.button("¿Olvidaste tu contraseña?", key="btn_forgot"):
-            st.session_state.codigo_enviado = False
-            st.session_state.codigo_verificacion = ""
-            st.session_state.correo_recuperar = ""
-            st.session_state.vista = "recuperar"
+        if st.button("Iniciar sesión", key="btn_login"):
+            if not correo or not contrasena:
+                st.warning("⚠️ Campos incompletos")
+            else:
+                doc = db.collection("usuarios").document(correo).get()
+                if doc.exists:
+                    datos = doc.to_dict()
+                    if datos["contrasena"] == contrasena:
+                        st.success(f"Bienvenido, {datos['nombre']} 👋")
+                        acceso = True
+                        usuario = datos
+                    else:
+                        st.error("❌ Contraseña incorrecta")
+                else:
+                    st.error("❌ Usuario no encontrado")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col2:
+        st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
+        if st.button("Registrarse", key="btn_register"):
+            st.session_state.vista = "registro"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.divider()
+
+    st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
+    if st.button("¿Olvidaste tu contraseña?", key="btn_forgot"):
+        st.session_state.codigo_enviado = False
+        st.session_state.codigo_verificacion = ""
+        st.session_state.correo_recuperar = ""
+        st.session_state.vista = "recuperar"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     return acceso, usuario
