@@ -32,7 +32,9 @@ def login():
     # Estilos personalizados
     st.markdown(f"""
         <style>
-        .main {{ padding-top: 2rem; }}
+        .main {{
+            padding-top: 2rem;
+        }}
         .logo-img {{
             display: block;
             margin: 0 auto 1rem auto;
@@ -48,10 +50,15 @@ def login():
             color: #3bb3d4;
             margin-bottom: 2rem;
         }}
-        .stTextInput > div > div > input {{
-            background-color: #ffffff;
-            color: black;
+        /* Inputs con texto negro */
+        input[type="text"], input[type="password"] {{
+            color: black !important;
         }}
+        input::placeholder {{
+            color: #555 !important;
+        }}
+
+        /* Botones verde agua */
         .btn-verdeagua > button {{
             background-color: #20c997 !important;
             color: white !important;
@@ -66,9 +73,6 @@ def login():
         .btn-verdeagua > button:hover {{
             background-color: #1eb386 !important;
         }}
-        .column-btns {{
-            gap: 10px !important;
-        }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -80,7 +84,7 @@ def login():
     correo = st.text_input("Correo electrónico")
     contrasena = st.text_input("Contraseña", type="password")
 
-    # Botones en columnas
+    # Botones
     col1, col2 = st.columns([1, 1], gap="small")
     with col1:
         st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
