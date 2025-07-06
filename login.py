@@ -17,119 +17,145 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 def login():
-    modo_oscuro = st.session_state.get("modo_oscuro", False)
-    fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
-    texto = "#ffffff" if modo_oscuro else "#000000"
-    input_bg = "#333333" if modo_oscuro else "#ffffff"
-    borde = "#ffffff" if modo_oscuro else "#44bba4"
     verde_agua = "#44bba4"
+    fondo_derecha = "#ffffff"
+    texto = "#000000"
+    degradado = "linear-gradient(to right, #6a11cb, #2575fc)"
 
     st.markdown(f"""
         <style>
         html, body, .stApp {{
-            background-color: {fondo};
-            color: {texto};
+            margin: 0;
+            padding: 0;
             overflow: hidden;
+        }}
+        .container {{
+            display: flex;
             height: 100vh;
+            width: 100vw;
         }}
-        .form-box {{
-            background-color: {fondo};
-            color: {texto};
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+        .left {{
+            flex: 1.3;
+        }}
+        .left img {{
             width: 100%;
-            max-width: 350px;
-            text-align: center;
+            height: 100%;
+            object-fit: cover;
         }}
-        .stTextInput input {{
-            background-color: {input_bg};
-            color: {texto};
-            border: 1px solid {borde};
-            border-radius: 8px;
-            padding: 10px;
-        }}
-        .stButton > button {{
-            background-color: {verde_agua};
-            color: white;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            width: 100%;
-        }}
-        .stButton > button:hover {{
-            background-color: #379d8e;
-        }}
-        .form-wrapper {{
-            height: 100vh;
+        .right {{
+            flex: 1;
+            background-color: {fondo_derecha};
             display: flex;
             justify-content: center;
             align-items: center;
         }}
+        .form-box {{
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }}
+        .form-box h3 {{
+            margin-bottom: 25px;
+            color: {texto};
+        }}
+        .stTextInput input {{
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            padding: 12px 15px;
+            width: 100%;
+        }}
+        .stButton > button {{
+            background-image: {degradado};
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            padding: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }}
+        .stButton > button:hover {{
+            background-image: linear-gradient(to right, #5b0eb3, #1f63e0);
+        }}
+        .extras {{
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #555;
+        }}
+        .theme-button {{
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            z-index: 9999;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
-    # Botón de tema arriba derecha
-    top = st.columns([10, 1])[1]
-    with top:
-        icono = "💡" if not modo_oscuro else "🔦"
-        if st.button(icono, key="tema_btn"):
-            st.session_state.modo_oscuro = not modo_oscuro
-            st.rerun()
+    # Botón tema arriba a la derecha
+    st.markdown('<div class="theme-button">', unsafe_allow_html=True)
+    icono = "💡" if not st.session_state.get("modo_oscuro", False) else "🔦"
+    if st.button(icono, key="tema_btn"):
+        st.session_state.modo_oscuro = not st.session_state.get("modo_oscuro", False)
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    col1, col2 = st.columns([7, 5])
+    # CONTENEDOR COMPLETO
+    st.markdown('<div class="container">', unsafe_allow_html=True)
 
-    # IZQUIERDA: Imagen de bienvenida
-    with col1:
-        try:
-            st.image("portadalogin.png", use_container_width=True)
-        except:
-            st.warning("⚠️ No se pudo cargar la imagen")
+    # Columna izquierda (imagen)
+    st.markdown('<div class="left">', unsafe_allow_html=True)
+    try:
+        st.image("portadalogin.png", use_column_width=True)
+    except:
+        st.warning("⚠️ No se pudo cargar la imagen")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # DERECHA: Formulario totalmente centrado
-    with col2:
-        st.markdown("<div class='form-wrapper'>", unsafe_allow_html=True)
+    # Columna derecha (formulario)
+    st.markdown('<div class="right"><div class="form-box">', unsafe_allow_html=True)
+    st.markdown("<h3>USER LOGIN</h3>", unsafe_allow_html=True)
 
-        with st.container():
-            st.markdown("<div class='form-box'>", unsafe_allow_html=True)
-            st.markdown("<h3>USER LOGIN</h3>", unsafe_allow_html=True)
+    correo = st.text_input("", placeholder="Correo electrónico")
+    contrasena = st.text_input("", placeholder="Contraseña", type="password")
 
-            correo = st.text_input("Correo electrónico")
-            contrasena = st.text_input("Contraseña", type="password")
+    acceso = False
+    usuario = None
 
-            acceso = False
-            usuario = None
+    if st.button("Login"):
+        doc = db.collection("usuarios").document(correo).get()
+        if doc.exists:
+            datos = doc.to_dict()
+            if datos["contrasena"] == contrasena:
+                st.success(f"Bienvenido, {datos['nombre']}")
+                acceso = True
+                usuario = datos
+            else:
+                st.error("❌ Contraseña incorrecta")
+        else:
+            st.error("❌ Usuario no encontrado")
 
-            if st.button("Iniciar sesión"):
-                doc = db.collection("usuarios").document(correo).get()
-                if doc.exists:
-                    datos = doc.to_dict()
-                    if datos["contrasena"] == contrasena:
-                        st.success(f"Bienvenido, {datos['nombre']}")
-                        acceso = True
-                        usuario = datos
-                    else:
-                        st.error("❌ Contraseña incorrecta")
-                else:
-                    st.error("❌ Usuario no encontrado")
+    # Línea inferior: Remember / Olvidaste
+    st.markdown("""
+        <div class="extras">
+            <span>Remember</span>
+            <span style="cursor:pointer; color:#2575fc;" onclick="document.querySelector('button[data-testid=stButton]:nth-of-type(2)').click()">Forget password?</span>
+        </div>
+    """, unsafe_allow_html=True)
 
-            col_a, col_b = st.columns(2)
-            with col_a:
-                if st.button("¿Olvidaste tu contraseña?"):
-                    st.session_state.codigo_enviado = False
-                    st.session_state.codigo_verificacion = ""
-                    st.session_state.correo_recuperar = ""
-                    st.session_state.vista = "recuperar"
-                    st.rerun()
+    if st.button("¿Olvidaste tu contraseña?", key="olvido"):
+        st.session_state.codigo_enviado = False
+        st.session_state.codigo_verificacion = ""
+        st.session_state.correo_recuperar = ""
+        st.session_state.vista = "recuperar"
+        st.rerun()
 
-            with col_b:
-                if st.button("Registrarse"):
-                    st.session_state.vista = "registro"
-                    st.rerun()
+    if st.button("Registrarse", key="registro"):
+        st.session_state.vista = "registro"
+        st.rerun()
 
-            st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)  # Cierra form-box y right
+    st.markdown('</div>', unsafe_allow_html=True)        # Cierra container
 
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        return acceso, usuario
+    return acceso, usuario
