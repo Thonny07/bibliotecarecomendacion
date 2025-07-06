@@ -29,7 +29,7 @@ def login():
 
     logo_base64 = load_logo_base64("logobiblioteca.png")
 
-    # Estilos
+    # Estilos personalizados
     st.markdown(f"""
         <style>
         .main {{ padding-top: 2rem; }}
@@ -41,31 +41,33 @@ def login():
             padding: 3rem 2rem;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
+            color: black;
         }}
-        .logo-container {{
+        .login-title {{
             background-color: orange;
-            border-radius: 100px;
             padding: 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            color: black;
         }}
         .logo-img {{
             width: 140px;
             height: 140px;
             border-radius: 50%;
             object-fit: cover;
+            margin-bottom: 1rem;
         }}
         .app-name {{
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #3bb3d4;
             margin-bottom: 2rem;
         }}
         .stTextInput > div > div > input {{
             background-color: #ffffff;
-            color: #000000;
+            color: black;
         }}
         .btn-verdeagua > button {{
             background-color: #20c997 !important;
@@ -76,7 +78,6 @@ def login():
             font-size: 0.95rem;
             padding: 0.6rem 1rem;
             border: none;
-            transition: background-color 0.2s ease;
         }}
         .btn-verdeagua > button:hover {{
             background-color: #1eb386 !important;
@@ -87,21 +88,22 @@ def login():
     with st.container():
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
 
-        # ✅ LOGO dentro de contenedor naranja y centrado
+        # ✅ Rectángulo encima del logo (Iniciar sesión) en naranja
+        st.markdown('<div class="login-title">Iniciar sesión</div>', unsafe_allow_html=True)
+
+        # ✅ Logo centrado, grande y circular
         st.markdown(f'''
-            <div class="logo-container">
-                <img class="logo-img" src="data:image/png;base64,{logo_base64}">
-            </div>
+            <img class="logo-img" src="data:image/png;base64,{logo_base64}">
         ''', unsafe_allow_html=True)
 
-        # ✅ NOMBRE DE LA BIBLIOTECA
+        # ✅ Nombre de la biblioteca debajo del logo
         st.markdown('<div class="app-name">Biblioteca Alejandría</div>', unsafe_allow_html=True)
 
-        # ✅ INPUTS
+        # Campos de ingreso
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
 
-        # ✅ Botones (mantienen su posición original)
+        # Botones
         col1, col2 = st.columns(2)
         with col1:
             st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
