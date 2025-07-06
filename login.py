@@ -21,31 +21,30 @@ def login():
     acceso = False
     usuario = None
 
-    # Estilos visuales centrados y reducidos
+    # Estilos para centrar y limitar ancho
     st.markdown("""
         <style>
         html, body, [data-testid="stAppViewContainer"] {
             background-color: #E8F6FC;
-            height: 100vh;
+        }
+        .main {
             display: flex;
             justify-content: center;
             align-items: center;
+            padding-top: 3vh;
         }
-        .main {
-            padding: 0 !important;
-        }
-        .login-box {
-            background-color: rgba(255,255,255,0.95);
+        .centered-box {
+            background-color: white;
             border-radius: 16px;
-            padding: 2rem;
-            max-width: 350px;
-            width: 90%;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 2.5rem 2rem;
+            width: 50%;
+            max-width: 500px;
+            min-width: 320px;
             margin: auto;
-            color: black;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         @media (prefers-color-scheme: dark) {
-            .login-box {
+            .centered-box {
                 background-color: #1e1e1e;
                 color: white;
             }
@@ -57,7 +56,7 @@ def login():
         }
         .login-title {
             text-align: center;
-            font-size: 1.7rem;
+            font-size: 1.8rem;
             font-weight: 600;
             margin-bottom: 1.5rem;
             color: #3bb3d4;
@@ -83,16 +82,14 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
-    # Caja visual centrada
     with st.container():
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        st.markdown('<div class="centered-box">', unsafe_allow_html=True)
         st.markdown('<div class="login-title">Iniciar sesión</div>', unsafe_allow_html=True)
 
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
 
-        # Botones pequeños y centrados
-        col1, col2 = st.columns([1, 1])
+        col1, col2 = st.columns(2)
         with col1:
             if st.button("Iniciar sesión"):
                 doc = db.collection("usuarios").document(correo).get()
