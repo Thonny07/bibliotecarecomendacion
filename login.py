@@ -22,10 +22,10 @@ def login():
     acceso = False
     usuario = None
 
-    # Cargar imagen local como base64 para insertar en HTML
+    # Cargar imagen como base64
     def load_logo_base64(path):
-        with open(path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode()
+        with open(path, "rb") as img:
+            return base64.b64encode(img.read()).decode()
 
     logo_base64 = load_logo_base64("logobiblioteca.png")
 
@@ -42,12 +42,20 @@ def login():
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
         }}
+        .logo-container {{
+            background-color: orange;
+            border-radius: 100px;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+        }}
         .logo-img {{
             width: 140px;
             height: 140px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 1rem;
         }}
         .app-name {{
             font-size: 1.8rem;
@@ -59,8 +67,8 @@ def login():
             background-color: #ffffff;
             color: #000000;
         }}
-        .btn-celeste > button {{
-            background-color: #3bb3d4 !important;
+        .btn-verdeagua > button {{
+            background-color: #20c997 !important;
             color: white !important;
             border-radius: 10px;
             font-weight: bold;
@@ -70,22 +78,8 @@ def login():
             border: none;
             transition: background-color 0.2s ease;
         }}
-        .btn-celeste > button:hover {{
-            background-color: #36a0c2 !important;
-        }}
-        .btn-blanco > button {{
-            background-color: white !important;
-            color: black !important;
-            border: 2px solid #3bb3d4 !important;
-            border-radius: 10px;
-            font-weight: bold;
-            width: 100% !important;
-            font-size: 0.95rem;
-            padding: 0.6rem 1rem;
-            transition: background-color 0.2s ease;
-        }}
-        .btn-blanco > button:hover {{
-            background-color: #f2f2f2 !important;
+        .btn-verdeagua > button:hover {{
+            background-color: #1eb386 !important;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -93,8 +87,12 @@ def login():
     with st.container():
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
 
-        # ✅ LOGO CIRCULAR Y CENTRADO
-        st.markdown(f'<img class="logo-img" src="data:image/png;base64,{logo_base64}">', unsafe_allow_html=True)
+        # ✅ LOGO dentro de contenedor naranja y centrado
+        st.markdown(f'''
+            <div class="logo-container">
+                <img class="logo-img" src="data:image/png;base64,{logo_base64}">
+            </div>
+        ''', unsafe_allow_html=True)
 
         # ✅ NOMBRE DE LA BIBLIOTECA
         st.markdown('<div class="app-name">Biblioteca Alejandría</div>', unsafe_allow_html=True)
@@ -103,9 +101,10 @@ def login():
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
 
+        # ✅ Botones (mantienen su posición original)
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown('<div class="btn-celeste">', unsafe_allow_html=True)
+            st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
             if st.button("Iniciar sesión", key="btn_login"):
                 if not correo or not contrasena:
                     st.warning("⚠️ Campos incompletos")
@@ -124,7 +123,7 @@ def login():
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col2:
-            st.markdown('<div class="btn-blanco">', unsafe_allow_html=True)
+            st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
             if st.button("Registrarse", key="btn_register"):
                 st.session_state.vista = "registro"
                 st.rerun()
@@ -132,7 +131,7 @@ def login():
 
         st.divider()
 
-        st.markdown('<div class="btn-blanco">', unsafe_allow_html=True)
+        st.markdown('<div class="btn-verdeagua">', unsafe_allow_html=True)
         if st.button("¿Olvidaste tu contraseña?", key="btn_forgot"):
             st.session_state.codigo_enviado = False
             st.session_state.codigo_verificacion = ""
