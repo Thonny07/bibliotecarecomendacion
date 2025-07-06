@@ -6,6 +6,7 @@ import inicio
 import recuperar
 import perfil
 from acciones_libros import obtener_libros_guardados
+from io import BytesIO
 
 # Configuración de la página
 st.set_page_config(layout="wide")
@@ -55,7 +56,7 @@ def aplicar_tema():
 
 aplicar_tema()
 
-# Encabezado con logo circular, título centrado y botón de tema a la derecha
+# Estilo y encabezado con logo circular y título
 st.markdown("""
     <style>
     .encabezado-container {
@@ -65,36 +66,32 @@ st.markdown("""
         margin-top: 10px;
         margin-bottom: 20px;
     }
-    .logo {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 20px;
-    }
     .titulo {
         font-size: 36px;
         font-weight: bold;
-        margin: 0;
-        text-align: center;
-    }
-    .tema-container {
-        position: absolute;
-        top: 20px;
-        right: 40px;
+        margin: 0 0 0 20px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Logo + Título centrado
-st.markdown("""
-    <div class="encabezado-container">
-        <img src="logobiblioteca.png" class="logo"/>
-        <div class="titulo">Biblioteca Alejandría</div>
-    </div>
-""", unsafe_allow_html=True)
+st.markdown('<div class="encabezado-container">', unsafe_allow_html=True)
+try:
+    logo = Image.open("logobiblioteca.png").resize((80, 80))
+    circ_logo = Image.new("RGBA", logo.size)
+    mask = Image.new("L", logo.size, 0)
+    from PIL import ImageDraw
+    ImageDraw.Draw(mask).ellipse((0, 0) + logo.size, fill=255)
+    circ_logo.paste(logo, (0, 0), mask=mask)
+    buf = BytesIO()
+    circ_logo.save(buf, format="PNG")
+    st.image(buf.getvalue(), width=80)
+except:
+    st.warning("No se pudo cargar el logo")
 
-# Botón "Tema" con ícono a la derecha
+st.markdown('<div class="titulo">Biblioteca Alejandría</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Botón "Tema" a la derecha
 with st.container():
     col_btn = st.columns([10, 1])[1]
     with col_btn:
