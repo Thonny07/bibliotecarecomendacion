@@ -7,80 +7,79 @@ import recuperar
 import perfil
 from acciones_libros import obtener_libros_guardados
 
-# -------- Configuración de página --------
+# Configuración de la página
 st.set_page_config(layout="wide")
 
-# -------- Estado inicial de tema --------
+# Estado inicial del tema
 if "modo_oscuro" not in st.session_state:
-    st.session_state.modo_oscuro = False  # modo claro por defecto
+    st.session_state.modo_oscuro = False
 
-# -------- Aplicar tema visual --------
+# Aplicar tema visual
 def aplicar_tema():
-    modo_oscuro = st.session_state.modo_oscuro
-    fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
-    texto = "#ffffff" if modo_oscuro else "#000000"
-    borde = "#888888" if modo_oscuro else "#cccccc"
-    campo_fondo = "#333333" if modo_oscuro else "#ffffff"
-
-    st.markdown(f"""
-        <style>
-        html, body, .stApp {{
-            background-color: {fondo} !important;
-            color: {texto} !important;
-        }}
-        input, textarea, select {{
-            background-color: {campo_fondo} !important;
-            color: {texto} !important;
-            border: 1px solid {borde} !important;
-            border-radius: 8px;
-        }}
-        .stSidebar {{
-            background-color: #a2ded0 !important;
-        }}
-        .modo-btn {{
-            background: none;
-            border: none;
-            cursor: pointer;
-        }}
-        .modo-icono {{
-            width: 30px;
-            height: 30px;
-        }}
-        </style>
-    """, unsafe_allow_html=True)
+    if st.session_state.modo_oscuro:
+        st.markdown("""
+            <style>
+            html, body, .stApp {
+                background-color: #1e1e1e !important;
+                color: white !important;
+            }
+            .stTextInput input, .stTextArea textarea, .stSelectbox div {
+                background-color: #333333 !important;
+                color: white !important;
+                border: 1px solid #888 !important;
+                border-radius: 8px;
+            }
+            .stSidebar {
+                background-color: #a2ded0 !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+            <style>
+            html, body, .stApp {
+                background-color: white !important;
+                color: black !important;
+            }
+            .stTextInput input, .stTextArea textarea, .stSelectbox div {
+                background-color: #ffffff !important;
+                color: black !important;
+                border: 1px solid #ccc !important;
+                border-radius: 8px;
+            }
+            .stSidebar {
+                background-color: #a2ded0 !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
 
 aplicar_tema()
 
-# -------- Logo y título superior --------
-col_logo, col_modo = st.columns([10, 1])
+# Encabezado con logo, título y botón de tema
+col_logo, col_titulo, col_tema = st.columns([1, 6, 1])
 with col_logo:
     try:
-        logo = Image.open("logobiblioteca.png")
-        st.markdown("""
-            <div style='display: flex; align-items: center; justify-content: center;'>
-                <img src='data:image/png;base64,""" + Image.open("logobiblioteca.png").tobytes().hex() + """' width='60' style='margin-right: 15px;' />
-                <h2>Biblioteca Alejandría</h2>
-            </div>
-        """, unsafe_allow_html=True)
+        st.image("logobiblioteca.png", width=60)
     except:
-        st.markdown("<h2 style='text-align: center;'>Biblioteca Alejandría</h2>", unsafe_allow_html=True)
+        pass
 
-with col_modo:
-    foco_encendido = "https://img.icons8.com/fluency/48/light-on.png"
-    foco_apagado = "https://img.icons8.com/fluency/48/light-off.png"
-    icono_foco = foco_encendido if st.session_state.modo_oscuro else foco_apagado
-    if st.button("", key="modo_btn"):
+with col_titulo:
+    st.markdown("""
+        <h1 style='text-align: center; margin-bottom: 0;'>Biblioteca Alejandría</h1>
+    """, unsafe_allow_html=True)
+
+with col_tema:
+    if st.button("💡" if not st.session_state.modo_oscuro else "🔦", key="toggle_tema"):
         st.session_state.modo_oscuro = not st.session_state.modo_oscuro
         st.rerun()
-    st.markdown(f"<img class='modo-icono' src='{icono_foco}' />", unsafe_allow_html=True)
 
-# -------- Estado inicial de navegación --------
+# Estado inicial de navegación
 if "vista" not in st.session_state:
     st.session_state.vista = "login"
 if "usuario" not in st.session_state:
     st.session_state.usuario = None
 
-# -------- Menú lateral si inició sesión --------
+# Menú lateral si inició sesión
 if st.session_state.usuario and st.session_state.vista not in ["recuperar", "registro"]:
     st.sidebar.title("Menú")
     opcion = st.sidebar.selectbox("Opciones", ["Inicio", "Mis libros guardados", "Mi perfil", "Cerrar sesión"])
@@ -97,7 +96,7 @@ if st.session_state.usuario and st.session_state.vista not in ["recuperar", "reg
         st.success("Sesión cerrada correctamente.")
         st.rerun()
 
-# -------- Control de navegación --------
+# Control de navegación
 if st.session_state.vista == "login":
     acceso, usuario = login.login()
     if acceso:
@@ -119,7 +118,6 @@ elif st.session_state.vista == "perfil":
 
 elif st.session_state.vista == "guardados":
     st.title("Mis libros guardados")
-
     libros = obtener_libros_guardados(st.session_state.usuario["correo"])
 
     if libros:
@@ -139,11 +137,11 @@ elif st.session_state.vista == "guardados":
                     st.write(libro["descripcion"])
 
             with cols[2]:
-                if st.button("Leer", key=f"leer_{i}"):
+                if st.button(f"Leer", key=f"leer_{i}"):
                     url_google = f"https://www.google.com/search?q={libro['titulo'].replace(' ', '+')}"
                     st.markdown(f"[Abrir libro en Google Books]({url_google})", unsafe_allow_html=True)
 
-                if st.button("Eliminar", key=f"eliminar_{i}"):
+                if st.button(f"Eliminar", key=f"eliminar_{i}"):
                     from acciones_libros import eliminar_libro_guardado
                     eliminar_libro_guardado(st.session_state.usuario["correo"], libro["titulo"])
                     st.success("Libro eliminado.")
