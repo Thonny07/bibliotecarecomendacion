@@ -25,6 +25,14 @@ def login():
     # ---------- CSS personalizado ----------
     st.markdown("""
         <style>
+        /* Quitar espacios externos y fondo del body */
+        .main, .block-container {
+            padding-top: 0rem !important;
+            padding-bottom: 0rem !important;
+            background-color: white !important;
+        }
+        header {visibility: hidden;}
+        
         .login-container {
             background-color: rgba(255,255,255,0.95);
             border-radius: 20px;
