@@ -16,7 +16,6 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# ---------- DISEÑO VISUAL ----------
 def login():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
@@ -29,8 +28,7 @@ def login():
         html, body, .stApp {{
             background-color: {fondo};
             color: {texto};
-            margin: 0;
-            padding: 0;
+            overflow: hidden;
         }}
         .stTextInput input, .stTextArea textarea {{
             background-color: {fondo};
@@ -38,21 +36,21 @@ def login():
             border: 1px solid {borde};
             border-radius: 8px;
         }}
-        .stButton>button {{
+        .stButton > button {{
             background-color: {verde_agua};
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 10px 20px;
+            padding: 8px 20px;
             font-weight: bold;
         }}
-        .stButton>button:hover {{
+        .stButton > button:hover {{
             background-color: #379d8e;
         }}
         </style>
     """, unsafe_allow_html=True)
 
-    # Botón de tema arriba a la derecha
+    # Botón de tema arriba derecha
     col_tema = st.columns([9, 1])[1]
     with col_tema:
         icono = "💡" if not modo_oscuro else "🔦"
@@ -60,15 +58,17 @@ def login():
             st.session_state.modo_oscuro = not modo_oscuro
             st.rerun()
 
-    # División 70/30
+    # Pantalla dividida
     col1, col2 = st.columns([7, 3])
 
     with col1:
-        st.image("portadalogin.png", use_container_width=True)
+        try:
+            st.image("portadalogin.png", use_container_width=True)
+        except:
+            st.warning("No se pudo cargar la imagen")
 
     with col2:
-        # Centrado vertical y horizontal
-        st.markdown("<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; height: 85vh;'>", unsafe_allow_html=True)
+        st.markdown(f"<div style='height: 95vh; display: flex; flex-direction: column; justify-content: center; align-items: center;'>", unsafe_allow_html=True)
 
         try:
             st.image("logobiblioteca.png", width=80)
@@ -88,7 +88,7 @@ def login():
             if doc.exists:
                 datos = doc.to_dict()
                 if datos["contrasena"] == contrasena:
-                    st.success(f"Bienvenido, {datos['nombre']} 👋")
+                    st.success(f"Bienvenido, {datos['nombre']}")
                     acceso = True
                     usuario = datos
                 else:
@@ -96,8 +96,8 @@ def login():
             else:
                 st.error("❌ Usuario no encontrado")
 
-        col_rec, col_reg = st.columns(2)
-        with col_rec:
+        col_a, col_b = st.columns(2)
+        with col_a:
             if st.button("¿Olvidaste tu contraseña?"):
                 st.session_state.codigo_enviado = False
                 st.session_state.codigo_verificacion = ""
@@ -105,7 +105,7 @@ def login():
                 st.session_state.vista = "recuperar"
                 st.rerun()
 
-        with col_reg:
+        with col_b:
             if st.button("Registrarse"):
                 st.session_state.vista = "registro"
                 st.rerun()
