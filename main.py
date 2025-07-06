@@ -1,6 +1,5 @@
 import streamlit as st
 from PIL import Image
-import base64
 import login
 import registro
 import inicio
@@ -56,24 +55,20 @@ def aplicar_tema():
 
 aplicar_tema()
 
-# Encabezado: logo + título centrados, botón tema a la derecha
-col1, col2 = st.columns([7, 1])
+# Encabezado con logo, título y botón de tema alineados
+logo_col, titulo_col, tema_col = st.columns([1, 5, 1])
 
-with col1:
+with logo_col:
     try:
         logo = Image.open("logobiblioteca.png")
-        buffered = st.image_to_url(logo)
-        encoded_logo = buffered.split(",")[1]
-        st.markdown(f"""
-            <div style="display: flex; justify-content: center; align-items: center; margin-top: 10px; margin-bottom: 20px;">
-                <img src="data:image/png;base64,{encoded_logo}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-right: 20px;" />
-                <div style="font-size: 36px; font-weight: bold;">Biblioteca Alejandría</div>
-            </div>
-        """, unsafe_allow_html=True)
-    except Exception as e:
+        st.image(logo, width=80)
+    except:
         st.warning("⚠️ No se pudo cargar el logo")
 
-with col2:
+with titulo_col:
+    st.markdown("<h1 style='text-align: center; margin-top: 18px;'>Biblioteca Alejandría</h1>", unsafe_allow_html=True)
+
+with tema_col:
     tema_texto = "Tema"
     icono = "💡" if not st.session_state.modo_oscuro else "🔦"
     if st.button(f"{tema_texto} {icono}", key="toggle_tema"):
