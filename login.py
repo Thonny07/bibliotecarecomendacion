@@ -21,24 +21,32 @@ def login():
     acceso = False
     usuario = None
 
-    # Aplicar estilos
+    # Estilos para centrar vertical y horizontalmente
     st.markdown("""
         <style>
+        html, body, [data-testid="stAppViewContainer"] {
+            background-color: #E8F6FC;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         .main {
-            padding-top: 2rem;
+            padding: 0 !important;
         }
         .login-box {
-            background-color: rgba(255,255,255,0.85);
+            background-color: rgba(255,255,255,0.95);
             color: black;
-            border-radius: 20px;
-            padding: 3rem 2rem;
-            max-width: 450px;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin: auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         @media (prefers-color-scheme: dark) {
             .login-box {
-                background-color: rgba(30,30,30,0.95);
+                background-color: #1e1e1e;
                 color: white;
             }
             input, textarea {
@@ -49,22 +57,27 @@ def login():
         }
         .login-title {
             text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
+            font-size: 1.7rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
             color: #3bb3d4;
         }
         .stButton>button {
             background-color: #3bb3d4;
             color: white;
             border: none;
-            padding: 0.5rem 1.5rem;
+            padding: 0.45rem 1rem;
             border-radius: 10px;
             font-weight: bold;
             transition: 0.3s;
+            width: 100%;
         }
         .stButton>button:hover {
             background-color: #34a6c4;
+        }
+        .stTextInput>div>div>input {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -76,7 +89,8 @@ def login():
         correo = st.text_input("Correo electrónico")
         contrasena = st.text_input("Contraseña", type="password")
 
-        col1, col2 = st.columns(2)
+        # Botones centrados y ajustados en ancho
+        col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("Iniciar sesión"):
                 doc = db.collection("usuarios").document(correo).get()
@@ -90,6 +104,7 @@ def login():
                         st.error("❌ Contraseña incorrecta")
                 else:
                     st.error("❌ Usuario no encontrado")
+
         with col2:
             if st.button("Registrarse"):
                 st.session_state.vista = "registro"
