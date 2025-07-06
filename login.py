@@ -6,48 +6,11 @@ import json  # Necesario para convertir el string del secret
 # ---------- CONFIGURACIÓN DE DISEÑO ----------
 st.set_page_config(page_title="Login", layout="centered")
 
-st.markdown("""
-    <style>
-        html, body, [class*="stApp"] {
-            background-color: #E0F7FA;
-            height: 100%;
-            overflow: hidden;
-        }
-        .main-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .login-box {
-            background-color: white;
-            padding: 40px 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            width: 380px;
-            text-align: center;
-        }
-        .stButton>button {
-            width: 100%;
-            margin-top: 10px;
-            background-color: #0288D1;
-            color: white;
-        }
-        .stTextInput>div>input {
-            text-align: center;
-        }
-    </style>
-    <div class="main-container">
-        <div class="login-box">
-""", unsafe_allow_html=True)
-
 # ---------- INICIALIZAR FIREBASE ----------
 if not firebase_admin._apps:
     try:
-        # Obtener el secreto como string y convertirlo a diccionario
         firebase_config_str = st.secrets["FIREBASE_CONFIG"]
         firebase_config = json.loads(firebase_config_str)
-
         cred = credentials.Certificate(firebase_config)
         firebase_admin.initialize_app(cred)
     except Exception as e:
@@ -58,6 +21,43 @@ db = firestore.client()
 
 # ---------- LOGIN ----------
 def login():
+    # CSS y contenedor
+    st.markdown("""
+        <style>
+            html, body, [class*="stApp"] {
+                background-color: #E0F7FA;
+                height: 100%;
+                overflow: hidden;
+            }
+            .main-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
+            .login-box {
+                background-color: white;
+                padding: 40px 30px;
+                border-radius: 16px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                width: 380px;
+                text-align: center;
+            }
+            .stButton>button {
+                width: 100%;
+                margin-top: 10px;
+                background-color: #0288D1;
+                color: white;
+            }
+            .stTextInput>div>input {
+                text-align: center;
+            }
+        </style>
+        <div class="main-container">
+        <div class="login-box">
+    """, unsafe_allow_html=True)
+
+    # CONTENIDO VISUAL
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Generic_Login_Icon.svg/1200px-Generic_Login_Icon.svg.png", width=80)
     st.markdown("### 🔐 Iniciar sesión")
 
@@ -93,8 +93,8 @@ def login():
             st.session_state.vista = "registro"
             st.rerun()
 
-    # Opción de recuperación de contraseña
     st.markdown("---")
+
     if st.button("¿Olvidaste tu contraseña?"):
         st.session_state.codigo_enviado = False
         st.session_state.codigo_verificacion = ""
@@ -102,5 +102,7 @@ def login():
         st.session_state.vista = "recuperar"
         st.rerun()
 
+    # CIERRE DEL CONTENEDOR
     st.markdown("</div></div>", unsafe_allow_html=True)
+
     return acceso, usuario
