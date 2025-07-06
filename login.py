@@ -18,163 +18,120 @@ db = firestore.client()
 
 def login():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
+    fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
+    texto = "#ffffff" if modo_oscuro else "#000000"
+    input_bg = "#333333" if modo_oscuro else "#ffffff"
+    borde = "#ffffff" if modo_oscuro else "#44bba4"
     verde_agua = "#44bba4"
-    degradado = "linear-gradient(to right, #6a11cb, #2575fc)"
-    texto = "#000000"
-    
-    # ✅ Ajustar fondo con ruta local de Streamlit (usa la imagen desde carpeta)
-    fondo_path = "fondologin.jpg"
 
     st.markdown(f"""
         <style>
         html, body, .stApp {{
-            background-image: url('{fondo_path}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
+            background-color: {fondo};
+            color: {texto};
             overflow: hidden;
-            margin: 0;
-            padding: 0;
         }}
-
-        .center-container {{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }}
-
-        .login-card {{
-            width: 400px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,0.3);
-            font-family: 'Segoe UI', sans-serif;
-        }}
-
-        .top-section {{
-            background: linear-gradient(to bottom, #6a11cb, #2575fc);
-            padding: 30px;
-            color: white;
+        .form-box {{
+            background-color: {fondo};
+            color: {texto};
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 350px;
             text-align: center;
         }}
-
-        .top-section h2 {{
-            margin: 0;
-            font-size: 26px;
-        }}
-
-        .top-section p {{
-            font-size: 14px;
-            margin-top: 10px;
-        }}
-
-        .bottom-section {{
-            background: white;
-            padding: 30px;
-            text-align: center;
-        }}
-
-        .bottom-section h3 {{
-            color: #333;
-            margin-bottom: 20px;
-        }}
-
         .stTextInput input {{
+            background-color: {input_bg};
+            color: {texto};
+            border: 1px solid {borde};
+            border-radius: 8px;
             padding: 10px;
-            border-radius: 30px;
-            border: 1px solid #ccc;
-            background-color: #f1f1f1;
-            width: 100%;
-            color: black;
         }}
-
         .stButton > button {{
-            width: 100%;
-            padding: 10px 20px;
-            border-radius: 30px;
-            background-image: {degradado};
+            background-color: {verde_agua};
             color: white;
             font-weight: bold;
             border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            width: 100%;
         }}
-
         .stButton > button:hover {{
-            background-image: linear-gradient(to right, #5b0eb3, #1f63e0);
+            background-color: #379d8e;
         }}
-
-        .extras {{
+        .small-links {{
             display: flex;
             justify-content: space-between;
+            font-size: 0.9em;
             margin-top: 10px;
-            font-size: 13px;
-            color: #555;
-        }}
-
-        .theme-button {{
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            z-index: 9999;
         }}
         </style>
     """, unsafe_allow_html=True)
 
-    # Botón de tema
-    st.markdown('<div class="theme-button">', unsafe_allow_html=True)
-    icono = "💡" if not modo_oscuro else "🔦"
-    if st.button(icono, key="tema_login"):
-        st.session_state.modo_oscuro = not modo_oscuro
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # Contenedor centrado
-    st.markdown('<div class="center-container"><div class="login-card">', unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="top-section">
-        <h2>HELLO & WELCOME</h2>
-        <p>Bienvenido al sistema. Ingresa tus datos para continuar.</p>
-    </div>
-    <div class="bottom-section">
-    """, unsafe_allow_html=True)
-
-    st.markdown("<h3>USER LOGIN</h3>", unsafe_allow_html=True)
-
-    correo = st.text_input("Correo electrónico", label_visibility="collapsed", placeholder="Correo")
-    contrasena = st.text_input("Contraseña", type="password", label_visibility="collapsed", placeholder="Contraseña")
-
-    acceso = False
-    usuario = None
-
-    if st.button("LOGIN"):
-        doc = db.collection("usuarios").document(correo).get()
-        if doc.exists:
-            datos = doc.to_dict()
-            if datos["contrasena"] == contrasena:
-                st.success(f"Bienvenido, {datos['nombre']}")
-                acceso = True
-                usuario = datos
-            else:
-                st.error("❌ Contraseña incorrecta")
-        else:
-            st.error("❌ Usuario no encontrado")
-
-    col_a, col_b = st.columns(2)
-    with col_a:
-        if st.button("¿Olvidaste tu contraseña?"):
-            st.session_state.codigo_enviado = False
-            st.session_state.codigo_verificacion = ""
-            st.session_state.correo_recuperar = ""
-            st.session_state.vista = "recuperar"
+    # Botón de tema arriba derecha
+    top = st.columns([10, 1])[1]
+    with top:
+        icono = "💡" if not modo_oscuro else "🔦"
+        if st.button(icono, key="tema_btn"):
+            st.session_state.modo_oscuro = not modo_oscuro
             st.rerun()
 
-    with col_b:
-        if st.button("Registrarse"):
-            st.session_state.vista = "registro"
-            st.rerun()
+    col1, col2 = st.columns([7, 5])
 
-    st.markdown("</div></div></div>", unsafe_allow_html=True)
+    # IZQUIERDA: Imagen de fondo
+    with col1:
+        try:
+            st.image("portadalogin.png", use_container_width=True)
+        except:
+            st.warning("⚠️ No se pudo cargar la imagen")
 
-    return acceso, usuario
+    # DERECHA: Formulario centrado vertical y horizontal
+    with col2:
+        st.markdown(
+            "<div style='display: flex; height: 90vh; align-items: center; justify-content: center;'>",
+            unsafe_allow_html=True
+        )
+
+        with st.container():
+            st.markdown("<div class='form-box'>", unsafe_allow_html=True)
+            st.markdown("<h3>Iniciar sesión</h3>", unsafe_allow_html=True)
+
+            correo = st.text_input("Correo electrónico")
+            contrasena = st.text_input("Contraseña", type="password")
+
+            acceso = False
+            usuario = None
+
+            if st.button("Iniciar sesión"):
+                doc = db.collection("usuarios").document(correo).get()
+                if doc.exists:
+                    datos = doc.to_dict()
+                    if datos["contrasena"] == contrasena:
+                        st.success(f"Bienvenido, {datos['nombre']}")
+                        acceso = True
+                        usuario = datos
+                    else:
+                        st.error("❌ Contraseña incorrecta")
+                else:
+                    st.error("❌ Usuario no encontrado")
+
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if st.button("¿Olvidaste tu contraseña?"):
+                    st.session_state.codigo_enviado = False
+                    st.session_state.codigo_verificacion = ""
+                    st.session_state.correo_recuperar = ""
+                    st.session_state.vista = "recuperar"
+                    st.rerun()
+
+            with col_b:
+                if st.button("Registrarse"):
+                    st.session_state.vista = "registro"
+                    st.rerun()
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        return acceso, usuario
