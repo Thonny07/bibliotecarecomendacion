@@ -28,6 +28,9 @@ def aplicar_tema_login():
         html, body, .stApp {{
             background-color: {fondo};
             color: {texto};
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
         }}
         .stTextInput input, .stTextArea textarea, .stSelectbox select {{
             background-color: {fondo};
@@ -46,6 +49,32 @@ def aplicar_tema_login():
         .stButton button:hover {{
             background-color: #379d8e;
         }}
+        .login-container {{
+            display: flex;
+            height: 100vh;
+        }}
+        .left-side {{
+            flex: 7;
+            overflow: hidden;
+        }}
+        .left-side img {{
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+        }}
+        .right-side {{
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }}
+        .theme-button {{
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -56,58 +85,66 @@ def login():
     if "modo_oscuro" not in st.session_state:
         st.session_state.modo_oscuro = False
 
-    # Botón de cambiar tema arriba a la derecha
-    col_tema = st.columns([10, 1])[1]
-    with col_tema:
-        foco = "🔆" if not st.session_state.modo_oscuro else "🌙"
-        if st.button(f"{foco} Tema"):
-            st.session_state.modo_oscuro = not st.session_state.modo_oscuro
-            st.rerun()
+    # Contenedor principal con HTML
+    st.markdown("""
+        <div class='login-container'>
+            <div class='left-side'>
+                <img src='portadalogin.png' />
+            </div>
+            <div class='right-side'>
+                <div class='theme-button'>
+                    <form action="#" method="post">
+                        <button name="toggle" type="submit">{}</button>
+                    </form>
+                </div>
+    """.format("🔆" if not st.session_state.modo_oscuro else "🌙"), unsafe_allow_html=True)
 
-    col_izq, col_der = st.columns([7, 3])
+    # Detectar clic del botón de tema manualmente (fuera del form)
+    if st.query_params.get("toggle") == "":
+        st.session_state.modo_oscuro = not st.session_state.modo_oscuro
+        st.rerun()
 
-    with col_izq:
-        st.image("portadalogin.png", use_column_width=True)
+    # CONTENIDO DEL FORMULARIO DE LOGIN
+    st.markdown("""
+                <div style='text-align: center;'>
+                    <img src='logobiblioteca.png' width='80' style='border-radius: 50%;'/><br>
+                    <h2>Biblioteca Alejandría</h2>
+                </div>
+    """, unsafe_allow_html=True)
+
+    correo = st.text_input("Correo electrónico")
+    contrasena = st.text_input("Contraseña", type="password")
 
     acceso = False
     usuario = None
 
-    with col_der:
-        st.markdown("""
-        <div style='text-align: center;'>
-        <img src='logobiblioteca.png' width='80' style='border-radius: 50%;'/><br>
-        <h2>Biblioteca Alejandría</h2>
-        </div>
-        """, unsafe_allow_html=True)
-
-        correo = st.text_input("Correo electrónico")
-        contrasena = st.text_input("Contraseña", type="password")
-
-        if st.button("Iniciar sesión"):
-            doc = db.collection("usuarios").document(correo).get()
-            if doc.exists:
-                datos = doc.to_dict()
-                if datos["contrasena"] == contrasena:
-                    st.success(f"Bienvenido, {datos['nombre']}")
-                    acceso = True
-                    usuario = datos
-                else:
-                    st.error("❌ Contraseña incorrecta")
+    if st.button("Iniciar sesión"):
+        doc = db.collection("usuarios").document(correo).get()
+        if doc.exists:
+            datos = doc.to_dict()
+            if datos["contrasena"] == contrasena:
+                st.success(f"Bienvenido, {datos['nombre']}")
+                acceso = True
+                usuario = datos
             else:
-                st.error("❌ Usuario no encontrado")
+                st.error("❌ Contraseña incorrecta")
+        else:
+            st.error("❌ Usuario no encontrado")
 
-        col_links = st.columns(2)
-        with col_links[0]:
-            if st.button("¿Olvidaste tu contraseña?"):
-                st.session_state.codigo_enviado = False
-                st.session_state.codigo_verificacion = ""
-                st.session_state.correo_recuperar = ""
-                st.session_state.vista = "recuperar"
-                st.rerun()
+    col_links = st.columns(2)
+    with col_links[0]:
+        if st.button("¿Olvidaste tu contraseña?"):
+            st.session_state.codigo_enviado = False
+            st.session_state.codigo_verificacion = ""
+            st.session_state.correo_recuperar = ""
+            st.session_state.vista = "recuperar"
+            st.rerun()
 
-        with col_links[1]:
-            if st.button("Registrarse"):
-                st.session_state.vista = "registro"
-                st.rerun()
+    with col_links[1]:
+        if st.button("Registrarse"):
+            st.session_state.vista = "registro"
+            st.rerun()
+
+    st.markdown("</div></div>", unsafe_allow_html=True)
 
     return acceso, usuario
