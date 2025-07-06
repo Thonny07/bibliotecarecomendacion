@@ -2,7 +2,6 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 import json
-import base64
 import os
 
 # ---------- INICIALIZAR FIREBASE ----------
@@ -23,117 +22,115 @@ def login():
     acceso = False
     usuario = None
 
-    # Cargar el logo como base64
-    def load_logo_base64(path):
-        with open(path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-
-    logo_path = "logobiblioteca.png"
-    if os.path.exists(logo_path):
-        logo_base64 = load_logo_base64(logo_path)
-        logo_html = f'''
-            <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
-                <img src="data:image/png;base64,{logo_base64}" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
-            </div>
-        '''
-    else:
-        logo_html = "<p style='color:red;text-align:center;'>⚠️ Logo no encontrado</p>"
-
-    # Estilos
-    st.markdown(f"""
+    # ---- ESTILOS ----
+    st.markdown("""
         <style>
-        .login-container {{
+        .login-box {
             background-color: white;
-            padding: 2rem;
-            max-width: 400px;
+            color: black;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            max-width: 450px;
             margin: auto;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }}
-        .app-title {{
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        @media (prefers-color-scheme: dark) {
+            .login-box {
+                background-color: #1e1e1e;
+                color: white;
+            }
+        }
+        .login-title {
             text-align: center;
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
-            color: #3bb3d4;
             margin-bottom: 1rem;
-        }}
-        input[type="text"], input[type="password"] {{
+            color: #3bb3d4;
+        }
+        .stTextInput input {
             color: black !important;
-        }}
-        input::placeholder {{
-            color: #555 !important;
-        }}
-        .button-row {{
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }}
-        .custom-button > button {{
+        }
+        .stButton > button {
             background-color: #20c997 !important;
             color: white !important;
             border: none;
-            border-radius: 8px;
-            padding: 0.5rem 1.2rem;
-            font-size: 15px;
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
             font-weight: bold;
-            transition: background-color 0.3s;
-        }}
-        .custom-button > button:hover {{
-            background-color: #18b089 !important;
+            transition: 0.3s;
+        }
+        .stButton > button:hover {
+            background-color: #17b08b !important;
             color: white !important;
-        }}
+        }
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .logo-container img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
         </style>
     """, unsafe_allow_html=True)
 
-    # UI
-    st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    st.markdown(logo_html, unsafe_allow_html=True)
-    st.markdown('<div class="app-title">Biblioteca Alejandría</div>', unsafe_allow_html=True)
+    # ---- UI ----
+    with st.container():
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
 
-    correo = st.text_input("Correo electrónico", placeholder="Ingresa tu correo")
-    contrasena = st.text_input("Contraseña", type="password", placeholder="Ingresa tu contraseña")
-
-    st.markdown('<div class="button-row">', unsafe_allow_html=True)
-
-    # Botón: Iniciar sesión
-    st.markdown('<div class="custom-button">', unsafe_allow_html=True)
-    if st.button("Iniciar sesión", key="btn_login"):
-        if not correo or not contrasena:
-            st.warning("⚠️ Campos incompletos")
+        # LOGO
+        if os.path.exists("logobiblioteca.png"):
+            st.markdown(f"""
+                <div class="logo-container">
+                    <img src="data:image/png;base64,{base64.b64encode(open('logobiblioteca.png', 'rb').read()).decode()}">
+                </div>
+            """, unsafe_allow_html=True)
         else:
-            doc = db.collection("usuarios").document(correo).get()
-            if doc.exists:
-                datos = doc.to_dict()
-                if datos["contrasena"] == contrasena:
-                    st.success(f"Bienvenido, {datos['nombre']} 👋")
-                    acceso = True
-                    usuario = datos
+            st.warning("⚠️ Logo no encontrado.")
+
+        # TÍTULO
+        st.markdown('<div class="login-title">Iniciar sesión</div>', unsafe_allow_html=True)
+
+        # CAMPOS
+        correo = st.text_input("Correo electrónico")
+        contrasena = st.text_input("Contraseña", type="password")
+
+        # BOTONES
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Iniciar sesión"):
+                if not correo or not contrasena:
+                    st.warning("⚠️ Campos incompletos")
                 else:
-                    st.error("❌ Contraseña incorrecta")
-            else:
-                st.error("❌ Usuario no encontrado")
-    st.markdown('</div>', unsafe_allow_html=True)
+                    doc = db.collection("usuarios").document(correo).get()
+                    if doc.exists:
+                        datos = doc.to_dict()
+                        if datos["contrasena"] == contrasena:
+                            st.success(f"Bienvenido, {datos['nombre']} 👋")
+                            acceso = True
+                            usuario = datos
+                        else:
+                            st.error("❌ Contraseña incorrecta")
+                    else:
+                        st.error("❌ Usuario no encontrado")
 
-    # Botón: Registrarse
-    st.markdown('<div class="custom-button">', unsafe_allow_html=True)
-    if st.button("Registrarse", key="btn_register"):
-        st.session_state.vista = "registro"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+        with col2:
+            if st.button("Registrarse"):
+                st.session_state.vista = "registro"
+                st.rerun()
 
-    # Botón: ¿Olvidaste tu contraseña?
-    st.markdown('<div class="custom-button">', unsafe_allow_html=True)
-    if st.button("¿Olvidaste tu contraseña?", key="btn_forgot"):
-        st.session_state.codigo_enviado = False
-        st.session_state.codigo_verificacion = ""
-        st.session_state.correo_recuperar = ""
-        st.session_state.vista = "recuperar"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+        # CAMBIAR CONTRASEÑA
+        st.divider()
+        if st.button("¿Olvidaste tu contraseña?"):
+            st.session_state.codigo_enviado = False
+            st.session_state.codigo_verificacion = ""
+            st.session_state.correo_recuperar = ""
+            st.session_state.vista = "recuperar"
+            st.rerun()
 
-    st.markdown('</div>', unsafe_allow_html=True)  # Cierre .button-row
-    st.markdown('</div>', unsafe_allow_html=True)  # Cierre .login-container
+        st.markdown('</div>', unsafe_allow_html=True)
 
     return acceso, usuario
