@@ -14,54 +14,55 @@ def mostrar_perfil(usuario):
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
     borde = "#44bba4"
-    mensaje_color = "#000000" if not modo_oscuro else "#ffffff"
+    mensaje_color = texto
+    fondo_mensaje = "#d4edda"
 
-    # Estilos personalizados
+    # Estilo personalizado
     st.markdown(f"""
         <style>
-        .stTextInput input,
+        .stTextInput > div > input,
         .stNumberInput input,
-        .stSelectbox div[data-baseweb="select"] {{
+        .stSelectbox div {{
             background-color: {fondo};
             color: {texto};
             border: 1px solid {borde};
             border-radius: 8px;
             padding: 8px;
         }}
-        .stTextInput label,
-        .stNumberInput label,
-        .stSelectbox label {{
-            color: {texto};
-            font-weight: bold;
-        }}
-        .stMarkdown h2 {{
-            color: {texto};
-        }}
-        .stButton > button {{
+
+        .guardar-btn > button {{
             background-color: #44bba4;
             color: white;
-            border: none;
-            padding: 0.5rem 1.5rem;
-            border-radius: 10px;
             font-weight: bold;
-            transition: 0.3s;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
         }}
-        .stButton > button:hover {{
+
+        .guardar-btn > button:hover {{
             background-color: #379d8e;
         }}
-        .stAlert-success {{
-            background-color: #d4edda !important;
-            color: {mensaje_color} !important;
-            border-radius: 10px;
-            padding: 1rem;
+
+        .correo-texto {{
+            font-size: 16px;
+            color: {texto};
+            background-color: transparent;
+            padding: 8px 0;
         }}
         </style>
     """, unsafe_allow_html=True)
 
+    # Contenedor centrado
     with st.container():
-        st.markdown("<div style='max-width: 800px; margin: auto; padding: 20px;'>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div style='max-width: 800px; margin: auto; padding: 20px;'>
+            """,
+            unsafe_allow_html=True
+        )
 
-        st.subheader("Mi perfil")
+        st.title("Mi perfil")
 
         correo = usuario["correo"]
         nombre = st.text_input("Nombre", value=usuario["nombre"])
@@ -73,6 +74,8 @@ def mostrar_perfil(usuario):
             index=["Masculino", "Femenino", "Otro"].index(usuario.get("genero", "Otro"))
         )
 
+        # Botón guardar con mensaje personalizado
+        st.markdown('<div class="guardar-btn">', unsafe_allow_html=True)
         if st.button("Guardar cambios"):
             datos_actualizados = {
                 "nombre": nombre,
@@ -81,8 +84,18 @@ def mostrar_perfil(usuario):
                 "genero": genero
             }
             db.collection("usuarios").document(correo).update(datos_actualizados)
-            st.success("Perfil actualizado correctamente")
             st.session_state.usuario.update(datos_actualizados)
 
-        st.markdown(f"<p style='color:{texto}; font-weight:bold;'>Correo: {correo} (no se puede modificar)</p>", unsafe_allow_html=True)
+            st.markdown(f"""
+                <div style="background-color: {fondo_mensaje}; color: {mensaje_color}; 
+                            padding: 10px 20px; border-radius: 10px; 
+                            font-weight: bold; text-align: center; margin-top: 10px;">
+                    Perfil actualizado correctamente
+                </div>
+            """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # Mostrar correo sin fondo ni emoji
+        st.markdown(f"<div class='correo-texto'>Correo: <code>{correo}</code> (no se puede modificar)</div>", unsafe_allow_html=True)
+
         st.markdown("</div>", unsafe_allow_html=True)
