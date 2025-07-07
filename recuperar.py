@@ -7,51 +7,7 @@ from email.mime.multipart import MIMEMultipart
 import random
 import json
 
-# ---------- Aplicar estilos personalizados ----------
-def aplicar_estilos():
-    oscuro = st.session_state.get("modo_oscuro", False)
-    color_texto = "#ffffff" if oscuro else "#000000"
-    color_fondo_input = "#333333" if oscuro else "#ffffff"
-    color_borde = "#20c997"
-
-    st.markdown(f"""
-    <style>
-    html, body, .stApp {{
-        color: {color_texto};
-    }}
-    input, textarea {{
-        background-color: {color_fondo_input} !important;
-        color: {color_texto} !important;
-        border: 1px solid {color_borde} !important;
-        border-radius: 8px !important;
-        padding: 0.5rem;
-    }}
-    label {{
-        color: {color_texto} !important;
-        font-weight: bold;
-    }}
-    .stButton > button {{
-        background-color: #20c997 !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 10px !important;
-        padding: 0.6rem 1.2rem !important;
-        font-weight: bold !important;
-        width: 60% !important;
-        display: block;
-        margin: 0 auto;
-    }}
-    .stButton > button:hover {{
-        background-color: #17a88b !important;
-        color: white !important;
-    }}
-    .stAlert-success p, .stAlert-error p, .stAlert-info p {{
-        color: {color_texto} !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
-# ---------- Inicializar Firebase solo una vez ----------
+# -------- Inicializar Firebase solo una vez --------
 if not firebase_admin._apps:
     firebase_config_str = st.secrets["FIREBASE_CONFIG"]
     firebase_config = json.loads(firebase_config_str)
@@ -60,7 +16,50 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# ---------- Envío de código por SMTP ----------
+# -------- Estilos por tema --------
+def aplicar_estilos():
+    modo_oscuro = st.session_state.get("modo_oscuro", False)
+    fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
+    texto = "#ffffff" if modo_oscuro else "#000000"
+    color_texto_alerta = "#ffffff" if modo_oscuro else "#000000"
+
+    st.markdown(f"""
+        <style>
+        html, body, .stApp {{
+            background-color: {fondo};
+            color: {texto};
+        }}
+        .stTextInput input {{
+            background-color: transparent;
+            color: {texto};
+            border: 1px solid #20c997;
+            border-radius: 8px;
+            padding: 8px;
+        }}
+        .stAlert-success p, .stAlert-error p {{
+            color: {color_texto_alerta} !important;
+        }}
+        .stAlert-info p {{
+            color: #000000 !important;
+        }}
+        .stButton>button {{
+            background-color: #20c997 !important;
+            color: white !important;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+        }}
+        .stButton>button:hover {{
+            background-color: #17a88b !important;
+        }}
+        label {{
+            color: {texto} !important;
+            font-weight: bold;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+
+# -------- Envío de código por SMTP --------
 def enviar_codigo_smtp(destinatario, codigo):
     try:
         remitente = st.secrets["EMAIL"]
@@ -80,6 +79,7 @@ def enviar_codigo_smtp(destinatario, codigo):
         </body>
         </html>
         """
+
         mensaje.attach(MIMEText(cuerpo, "html"))
 
         servidor = smtplib.SMTP("smtp.gmail.com", 587)
@@ -92,7 +92,7 @@ def enviar_codigo_smtp(destinatario, codigo):
         st.error(f"Error al enviar correo: {e}")
         return False
 
-# ---------- Función principal ----------
+# -------- Función principal --------
 def recuperar_contrasena():
     aplicar_estilos()
     st.subheader("Recuperar contraseña")
@@ -124,7 +124,7 @@ def recuperar_contrasena():
                 else:
                     st.error("Este correo no está registrado")
 
-    # Paso 2: Verificar código y cambiar contraseña
+    # Paso 2: Verificar código
     else:
         st.markdown("### Verifica tu código y crea una nueva contraseña")
         st.info(f"Código enviado a: {st.session_state.correo_recuperar}")
@@ -139,7 +139,6 @@ def recuperar_contrasena():
                     doc_ref = db.collection("usuarios").document(st.session_state.correo_recuperar)
                     doc_ref.update({"contrasena": nueva_contrasena})
                     st.success("Contraseña actualizada correctamente")
-
                     st.session_state.vista = "login"
                     st.session_state.codigo_enviado = False
                     st.session_state.codigo_verificacion = ""
@@ -149,7 +148,7 @@ def recuperar_contrasena():
                     st.error("Código incorrecto")
 
     # Botón para volver al login
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("---")
     if st.button("Volver al login"):
         st.session_state.vista = "login"
         st.session_state.codigo_enviado = False
