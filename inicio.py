@@ -55,7 +55,7 @@ def aplicar_tema_estilo():
             border-radius: 8px;
         }}
         button {{
-            background-color: #44bba4 !important;
+            background-color: #20c997 !important;
             color: white !important;
             border: none;
             border-radius: 5px;
@@ -63,7 +63,7 @@ def aplicar_tema_estilo():
             cursor: pointer;
         }}
         button:hover {{
-            background-color: #379d8e !important;
+            background-color: #17a88b !important;
         }}
         .estrella-container button {{
             background: none !important;
@@ -76,10 +76,11 @@ def aplicar_tema_estilo():
         .stAlert > div {{
             color: {color_exito};
         }}
-        .encabezado {{
+        .logo-header {{
             display: flex;
             align-items: center;
             gap: 15px;
+            margin-bottom: 25px;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -87,12 +88,16 @@ def aplicar_tema_estilo():
 def pantalla_inicio(usuario):
     aplicar_tema_estilo()
 
-    # Encabezado con logo y nombre de la biblioteca
-    col_logo, col_titulo = st.columns([1, 8])
-    with col_logo:
-        st.image("logobiblioteca.png", width=60)
-    with col_titulo:
-        st.markdown("<h1 style='margin-bottom: 10px;'>Biblioteca</h1>", unsafe_allow_html=True)
+    # ✅ Logo y título alineados
+    st.markdown(
+        """
+        <div class="logo-header">
+            <img src="https://raw.githubusercontent.com/tuusuario/tu-repo/main/logobiblioteca.png" alt="Logo" width="60">
+            <h1 style='margin-bottom: 0;'>Biblioteca</h1>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     with st.sidebar:
         if "modo_oscuro" not in st.session_state:
