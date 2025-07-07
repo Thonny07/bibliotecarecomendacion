@@ -30,9 +30,10 @@ def mostrar_estrellas(valor):
 def aplicar_tema_estilo():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
-    texto = "#000000"
+    texto = "#ffffff" if modo_oscuro else "#000000"
     borde_input = "#44bba4"
     color_exito = "#000000" if not modo_oscuro else "#ffffff"
+
     st.markdown(f"""
         <style>
         html, body, .stApp {{
@@ -66,11 +67,6 @@ def aplicar_tema_estilo():
         button:hover {{
             background-color: #17a88b !important;
         }}
-        .estrella-container {{
-            display: inline-flex;
-            gap: 4px;
-            margin-bottom: 8px;
-        }}
         .stAlert-success p {{
             color: {color_exito} !important;
         }}
@@ -84,19 +80,21 @@ def pantalla_inicio(usuario):
         if "modo_oscuro" not in st.session_state:
             st.session_state.modo_oscuro = False
         modo = st.session_state.modo_oscuro
-        foco = "🔆" if not modo else "🌙"
+        foco = "🌆" if not modo else "🌙"
         if st.button(f"{foco} Cambiar tema"):
             st.session_state.modo_oscuro = not modo
             st.rerun()
 
+    # Logo
     try:
         with open("logobiblioteca.png", "rb") as image_file:
             encoded = base64.b64encode(image_file.read()).decode()
-            st.markdown(f'<img src="data:image/png;base64,{encoded}" class="logo-img" style="display:block;margin:0 auto 10px;width:120px;height:120px;border-radius:50%;object-fit:cover;">', unsafe_allow_html=True)
+            st.markdown(
+                f'<img src="data:image/png;base64,{encoded}" style="width: 120px; display: block; margin: auto;">',
+                unsafe_allow_html=True
+            )
     except:
-        st.warning("⚠️ No se pudo cargar el logo.")
-
-    st.markdown('<h2 style="text-align:center;color:#20c997;margin-bottom:2rem;">Biblioteca Alejandría</h2>', unsafe_allow_html=True)
+        st.warning("No se pudo cargar el logo")
 
     st.subheader(f"Bienvenido, {usuario['nombre']} {usuario['apellido']}")
     consulta = st.text_input("Buscar libros")
@@ -147,12 +145,12 @@ def pantalla_inicio(usuario):
                         st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
                     st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
-                    st.markdown('<div class="estrella-container">', unsafe_allow_html=True)
+                    cols_estrellas = st.columns(5)
                     estrellas_seleccionadas = st.session_state.get(f"estrellas_{idx}", 0)
                     for i in range(5):
-                        if st.button("★" if i < estrellas_seleccionadas else "☆", key=f"estrella_{idx}_{i}"):
-                            st.session_state[f"estrellas_{idx}"] = i + 1
-                    st.markdown('</div>', unsafe_allow_html=True)
+                        with cols_estrellas[i]:
+                            if st.button("★" if i < estrellas_seleccionadas else "☆", key=f"estrella_{idx}_{i}"):
+                                st.session_state[f"estrellas_{idx}"] = i + 1
 
                     comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
                     if st.button("Enviar reseña", key=f"resena_{idx}"):
