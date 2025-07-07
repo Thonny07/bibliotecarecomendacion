@@ -32,6 +32,8 @@ def aplicar_tema_estilo():
     texto = "#000000"
     borde_input = "#44bba4"
     color_exito = "#000000" if not modo_oscuro else "#ffffff"
+    info_color = "#000000" if not modo_oscuro else "#ffffff"
+
     st.markdown(f"""
         <style>
         html, body, .stApp {{
@@ -55,7 +57,7 @@ def aplicar_tema_estilo():
             border-radius: 8px;
         }}
         button {{
-            background-color: #44bba4 !important;
+            background-color: #20c997 !important;
             color: white !important;
             border: none;
             border-radius: 5px;
@@ -63,7 +65,7 @@ def aplicar_tema_estilo():
             cursor: pointer;
         }}
         button:hover {{
-            background-color: #379d8e !important;
+            background-color: #17a88b !important;
         }}
         .estrella-container {{
             display: flex;
@@ -72,6 +74,9 @@ def aplicar_tema_estilo():
         }}
         .stAlert-success p {{
             color: {color_exito} !important;
+        }}
+        .stAlert-info p {{
+            color: {info_color} !important;
         }}
         </style>
     """, unsafe_allow_html=True)
