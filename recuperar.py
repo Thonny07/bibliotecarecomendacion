@@ -16,41 +16,47 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# Estilos personalizados
+# Estilo dinámico
 def aplicar_estilos():
     oscuro = st.session_state.get("modo_oscuro", False)
     color_texto = "#ffffff" if oscuro else "#000000"
+    color_fondo_input = "#333333" if oscuro else "#ffffff"
+    color_borde = "#20c997"
 
     st.markdown(f"""
     <style>
     html, body, .stApp {{
         color: {color_texto};
     }}
-    .stTextInput input, .stTextArea textarea {{
-        background-color: transparent !important;
+    input, textarea {{
+        background-color: {color_fondo_input} !important;
         color: {color_texto} !important;
-        border: 1px solid #20c997 !important;
+        border: 1px solid {color_borde} !important;
         border-radius: 8px !important;
+        padding: 0.5rem;
     }}
     .stButton > button {{
         background-color: #20c997 !important;
         color: white !important;
-        border: none;
-        border-radius: 10px;
-        padding: 0.6rem 1.2rem;
-        font-weight: bold;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 0.6rem 1.2rem !important;
+        font-weight: bold !important;
+        width: 60% !important;
+        display: block;
+        margin: 0 auto;
     }}
     .stButton > button:hover {{
         background-color: #17a88b !important;
         color: white !important;
     }}
-    .stAlert-success p, .stAlert-error p {{
+    .stAlert-success p, .stAlert-error p, .stAlert-info p {{
         color: {color_texto} !important;
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# Enviar código por correo
+# Enviar código al correo
 def enviar_codigo_smtp(destinatario, codigo):
     try:
         remitente = st.secrets["EMAIL"]
@@ -83,10 +89,9 @@ def enviar_codigo_smtp(destinatario, codigo):
         st.error(f"Error al enviar correo: {e}")
         return False
 
-# Pantalla principal de recuperación
+# Función principal
 def recuperar_contrasena():
     aplicar_estilos()
-
     st.subheader("Recuperar contraseña")
 
     if "codigo_enviado" not in st.session_state:
@@ -116,7 +121,7 @@ def recuperar_contrasena():
                 else:
                     st.error("Este correo no está registrado")
 
-    # Paso 2: Verificar código
+    # Paso 2: Verificar código y cambiar contraseña
     else:
         st.markdown("### Verifica tu código y crea una nueva contraseña")
         st.info(f"Código enviado a: {st.session_state.correo_recuperar}")
