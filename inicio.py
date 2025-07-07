@@ -30,7 +30,8 @@ def aplicar_tema_estilo():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
-    borde_input = "#ffffff" if modo_oscuro else "#44bba4"
+    borde_input = "#ffffff" if modo_oscuro else "#20c997"
+
     color_exito = "#000000" if not modo_oscuro else "#ffffff"
     st.markdown(f"""
         <style>
