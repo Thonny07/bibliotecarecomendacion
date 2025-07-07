@@ -14,6 +14,7 @@ def mostrar_perfil(usuario):
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
     borde = "#44bba4"
+    mensaje_color = "#000000" if not modo_oscuro else "#ffffff"
 
     # Estilos personalizados
     st.markdown(f"""
@@ -47,6 +48,12 @@ def mostrar_perfil(usuario):
         }}
         .stButton > button:hover {{
             background-color: #379d8e;
+        }}
+        .stAlert-success {{
+            background-color: #d4edda !important;
+            color: {mensaje_color} !important;
+            border-radius: 10px;
+            padding: 1rem;
         }}
         </style>
     """, unsafe_allow_html=True)
