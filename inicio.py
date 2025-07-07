@@ -31,13 +31,14 @@ def aplicar_tema_estilo():
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
     borde_input = "#ffffff" if modo_oscuro else "#44bba4"
+    boton = "#44bba4"
     st.markdown(f"""
         <style>
         html, body, .stApp {{
             background-color: {fondo};
             color: {texto};
         }}
-        .stTextInput input, .stTextArea textarea, .stSelectbox select, .stRadio div {{
+        .stTextInput input, .stTextArea textarea, .stSelectbox select {{
             background-color: {fondo};
             color: {texto};
             border: 1px solid {borde_input};
@@ -53,7 +54,7 @@ def aplicar_tema_estilo():
             border-radius: 8px;
         }}
         button {{
-            background-color: #44bba4 !important;
+            background-color: {boton} !important;
             color: white !important;
             border: none;
             border-radius: 5px;
@@ -62,6 +63,14 @@ def aplicar_tema_estilo():
         }}
         button:hover {{
             background-color: #379d8e !important;
+        }}
+        .estrella-btn {{
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #FFD700;
+            cursor: pointer;
+            padding: 0 3px;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -73,7 +82,7 @@ def pantalla_inicio(usuario):
         if "modo_oscuro" not in st.session_state:
             st.session_state.modo_oscuro = False
         modo = st.session_state.modo_oscuro
-        foco = "🇶" if not modo else "🌙"
+        foco = "🔆" if not modo else "🌙"
         if st.button(f"{foco} Cambiar tema"):
             st.session_state.modo_oscuro = not modo
             st.rerun()
@@ -126,31 +135,18 @@ def pantalla_inicio(usuario):
                     if libro.get("enlace"):
                         st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
-                    # Mostrar estrellas como enlaces
-                    estrellas_seleccionadas = st.session_state.get(f"estrellas_{idx}", 0)
-                    st.markdown(f"""
-                    <div style='display: flex; gap: 6px; font-size: 28px;'>
-                        {''.join(
-                            f"<a href='?estrella_click={i}&libro_idx={idx}' style='text-decoration:none;color:#f5c518;'>{'\u2605' if i < estrellas_seleccionadas else '\u2606'}</a>"
-                            for i in range(1, 6)
-                        )}
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                    # Capturar clic en estrella
-                    params = st.experimental_get_query_params()
-                    if "estrella_click" in params and "libro_idx" in params:
-                        clicked_idx = int(params["libro_idx"][0])
-                        if clicked_idx == idx:
-                            nueva = int(params["estrella_click"][0])
-                            st.session_state[f"estrellas_{idx}"] = nueva
-                            st.experimental_set_query_params()
+                    st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
+                    estrellas = st.session_state.get(f"estrellas_{idx}", 0)
+                    cols = st.columns(5)
+                    for i in range(5):
+                        if cols[i].button("★" if i < estrellas else "☆", key=f"estrella_{idx}_{i}"):
+                            st.session_state[f"estrellas_{idx}"] = i + 1
                             st.rerun()
 
                     comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
                     if st.button("Enviar reseña", key=f"resena_{idx}"):
-                        estrellas = st.session_state.get(f"estrellas_{idx}", 0)
-                        guardar_reseña(usuario["correo"], libro["titulo"], estrellas, comentario)
+                        estrellas_val = st.session_state.get(f"estrellas_{idx}", 0)
+                        guardar_reseña(usuario["correo"], libro["titulo"], estrellas_val, comentario)
                         st.success("¡Gracias por tu reseña!")
 
                     reseñas = obtener_reseñas(libro["titulo"])
