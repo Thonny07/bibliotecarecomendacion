@@ -31,16 +31,19 @@ def mostrar_perfil(usuario):
             border-radius: 8px;
         }}
 
-        .guardar-btn > button {{
+        /* === BOTÓN ESTILO VERDE AGUA === */
+        div.stButton > button {{
             background-color: #20c997 !important;
             color: white !important;
             font-weight: bold;
             padding: 8px 20px;
             border-radius: 8px;
             margin-top: 10px;
+            border: none;
         }}
-        .guardar-btn > button:hover {{
+        div.stButton > button:hover {{
             background-color: #17a88b !important;
+            color: white !important;
         }}
 
         .correo-label {{
@@ -81,7 +84,6 @@ def mostrar_perfil(usuario):
         )
 
         # Botón guardar
-        st.markdown('<div class="guardar-btn">', unsafe_allow_html=True)
         if st.button("Guardar cambios"):
             datos_actualizados = {
                 "nombre": nombre,
@@ -93,7 +95,6 @@ def mostrar_perfil(usuario):
             st.session_state.usuario.update(datos_actualizados)
 
             st.markdown('<div class="mensaje-exito">Perfil actualizado correctamente</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
 
         # Correo sin fondo negro
         st.markdown(f"<div class='correo-label'>Correo: {correo} (no se puede modificar)</div>", unsafe_allow_html=True)
