@@ -52,30 +52,30 @@ def aplicar_tema_estilo():
             padding: 10px;
             border-radius: 8px;
         }}
-        .stButton > button {{
-            background-color: #3bb3d4 !important;
+        button {{
+            background-color: #44bba4 !important;
             color: white !important;
             border: none;
             border-radius: 5px;
             padding: 8px 16px;
             cursor: pointer;
-            font-weight: bold;
         }}
-        .stButton > button:hover {{
-            background-color: #34a6c4 !important;
+        button:hover {{
+            background-color: #379d8e !important;
         }}
-        .estrella-contenedor {{
+        .star-rating-row {{
             display: flex;
-            gap: 5px;
+            gap: 4px;
+            margin-top: 5px;
             margin-bottom: 10px;
         }}
-        .estrella-contenedor .stButton > button {{
-            background: none !important;
+        .star-rating-row button {{
+            background-color: transparent !important;
+            color: #ffc107 !important;
             border: none !important;
             font-size: 22px !important;
-            color: gold !important;
-            padding: 0px !important;
-            margin: 0px !important;
+            padding: 2px 6px !important;
+            box-shadow: none !important;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -141,13 +141,12 @@ def pantalla_inicio(usuario):
                         st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
                     st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
-                    st.markdown("<div class='estrella-contenedor'>", unsafe_allow_html=True)
-                    cal_cols = st.columns(5)
-                    estrellas_seleccionadas = st.session_state.get(f"estrellas_{idx}", 0)
+                    st.markdown('<div class="star-rating-row">', unsafe_allow_html=True)
                     for i in range(5):
-                        if cal_cols[i].button("★" if i < estrellas_seleccionadas else "☆", key=f"estrella_{idx}_{i}"):
+                        estrella = "★" if i < st.session_state.get(f"estrellas_{idx}", 0) else "☆"
+                        if st.button(estrella, key=f"estrella_{idx}_{i}"):
                             st.session_state[f"estrellas_{idx}"] = i + 1
-                    st.markdown("</div>", unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
 
                     comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
                     if st.button("Enviar reseña", key=f"resena_{idx}"):
