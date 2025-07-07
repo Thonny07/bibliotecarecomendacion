@@ -54,7 +54,7 @@ def mostrar_perfil(usuario):
     with st.container():
         st.markdown("<div style='max-width: 800px; margin: auto; padding: 20px;'>", unsafe_allow_html=True)
 
-        st.subheader("👤 Mi perfil")
+        st.subheader("Mi perfil")
 
         correo = usuario["correo"]
         nombre = st.text_input("Nombre", value=usuario["nombre"])
@@ -66,7 +66,7 @@ def mostrar_perfil(usuario):
             index=["Masculino", "Femenino", "Otro"].index(usuario.get("genero", "Otro"))
         )
 
-        if st.button("💾 Guardar cambios"):
+        if st.button("Guardar cambios"):
             datos_actualizados = {
                 "nombre": nombre,
                 "apellido": apellido,
@@ -74,9 +74,8 @@ def mostrar_perfil(usuario):
                 "genero": genero
             }
             db.collection("usuarios").document(correo).update(datos_actualizados)
-            st.success("✅ Perfil actualizado correctamente")
+            st.success("Perfil actualizado correctamente")
             st.session_state.usuario.update(datos_actualizados)
 
-        st.markdown(f"<p style='color:{texto}; font-weight:bold'>📧 Correo: <code>{correo}</code> (no se puede modificar)</p>", unsafe_allow_html=True)
-
+        st.markdown(f"<p style='color:{texto}; font-weight:bold;'>Correo: {correo} (no se puede modificar)</p>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
