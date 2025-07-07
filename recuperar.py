@@ -21,7 +21,7 @@ def aplicar_estilos():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
-    color_texto_alerta = "#ffffff" if modo_oscuro else "#000000"
+    color_alerta = "#ffffff" if modo_oscuro else "#000000"
 
     st.markdown(f"""
         <style>
@@ -37,10 +37,7 @@ def aplicar_estilos():
             padding: 8px;
         }}
         .stAlert-success p, .stAlert-error p {{
-            color: {color_texto_alerta} !important;
-        }}
-        .stAlert-info p {{
-            color: #000000 !important;
+            color: {color_alerta} !important;
         }}
         .stButton>button {{
             background-color: #20c997 !important;
@@ -48,6 +45,7 @@ def aplicar_estilos():
             border: none;
             border-radius: 8px;
             padding: 8px 16px;
+            width: 100%;
         }}
         .stButton>button:hover {{
             background-color: #17a88b !important;
@@ -55,6 +53,12 @@ def aplicar_estilos():
         label {{
             color: {texto} !important;
             font-weight: bold;
+        }}
+        .mensaje-personalizado {{
+            color: {color_alerta};
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 10px;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -108,7 +112,11 @@ def recuperar_contrasena():
     if not st.session_state.codigo_enviado:
         with st.form("form_enviar_codigo"):
             correo = st.text_input("Ingrese su correo registrado")
-            enviar = st.form_submit_button("Enviar código")
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                enviar = st.form_submit_button("Enviar código")
+            with col2:
+                volver = st.form_submit_button("Volver al login")
 
             if enviar:
                 doc = db.collection("usuarios").document(correo).get()
@@ -123,16 +131,26 @@ def recuperar_contrasena():
                         st.rerun()
                 else:
                     st.error("Este correo no está registrado")
+            elif volver:
+                st.session_state.vista = "login"
+                st.rerun()
 
     # Paso 2: Verificar código
     else:
         st.markdown("### Verifica tu código y crea una nueva contraseña")
-        st.info(f"Código enviado a: {st.session_state.correo_recuperar}")
+        st.markdown(
+            f'<div class="mensaje-personalizado">Código enviado a: {st.session_state.correo_recuperar}</div>',
+            unsafe_allow_html=True
+        )
 
         with st.form("form_verificar_codigo"):
             codigo_ingresado = st.text_input("Ingresa el código recibido")
             nueva_contrasena = st.text_input("Nueva contraseña", type="password")
-            cambiar = st.form_submit_button("Cambiar contraseña")
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                cambiar = st.form_submit_button("Cambiar contraseña")
+            with col2:
+                volver = st.form_submit_button("Volver al login")
 
             if cambiar:
                 if codigo_ingresado == st.session_state.codigo_verificacion:
@@ -146,12 +164,9 @@ def recuperar_contrasena():
                     st.rerun()
                 else:
                     st.error("Código incorrecto")
-
-    # Botón para volver al login
-    st.markdown("---")
-    if st.button("Volver al login"):
-        st.session_state.vista = "login"
-        st.session_state.codigo_enviado = False
-        st.session_state.codigo_verificacion = ""
-        st.session_state.correo_recuperar = ""
-        st.rerun()
+            elif volver:
+                st.session_state.vista = "login"
+                st.session_state.codigo_enviado = False
+                st.session_state.codigo_verificacion = ""
+                st.session_state.correo_recuperar = ""
+                st.rerun()
