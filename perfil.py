@@ -9,14 +9,50 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 def mostrar_perfil(usuario):
-    # Contenedor centrado y más amplio
+    # Detectar modo oscuro
+    modo_oscuro = st.session_state.get("modo_oscuro", False)
+    fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
+    texto = "#ffffff" if modo_oscuro else "#000000"
+    borde = "#44bba4"
+
+    # Estilos personalizados
+    st.markdown(f"""
+        <style>
+        .stTextInput input,
+        .stNumberInput input,
+        .stSelectbox div[data-baseweb="select"] {{
+            background-color: {fondo};
+            color: {texto};
+            border: 1px solid {borde};
+            border-radius: 8px;
+            padding: 8px;
+        }}
+        .stTextInput label,
+        .stNumberInput label,
+        .stSelectbox label {{
+            color: {texto};
+            font-weight: bold;
+        }}
+        .stMarkdown h2 {{
+            color: {texto};
+        }}
+        .stButton > button {{
+            background-color: #44bba4;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.3s;
+        }}
+        .stButton > button:hover {{
+            background-color: #379d8e;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+
     with st.container():
-        st.markdown(
-            """
-            <div style='max-width: 800px; margin: auto; padding: 20px;'>
-            """,
-            unsafe_allow_html=True
-        )
+        st.markdown("<div style='max-width: 800px; margin: auto; padding: 20px;'>", unsafe_allow_html=True)
 
         st.subheader("👤 Mi perfil")
 
@@ -41,11 +77,6 @@ def mostrar_perfil(usuario):
             st.success("✅ Perfil actualizado correctamente")
             st.session_state.usuario.update(datos_actualizados)
 
-        st.markdown(f"📧 Correo: `{correo}` (no se puede modificar)")
-
-        st.markdown("---")
-        if st.button("⬅️ Volver a inicio"):
-            st.session_state.vista = "inicio"
-            st.rerun()
+        st.markdown(f"<p style='color:{texto}; font-weight:bold'>📧 Correo: <code>{correo}</code> (no se puede modificar)</p>", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
