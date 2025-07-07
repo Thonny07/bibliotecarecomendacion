@@ -24,13 +24,19 @@ def aplicar_tema():
                 color: white !important;
             }
             .stTextInput input, .stTextArea textarea, .stSelectbox div {
-                background-color: #333333 !important;
+                background-color: #333 !important;
                 color: white !important;
                 border: 1px solid #888 !important;
                 border-radius: 8px;
             }
             .stSidebar {
-                background-color: #a2ded0 !important;
+                background-color: #20c997 !important;
+            }
+            .stSelectbox div[data-baseweb="select"] {
+                background-color: #000000 !important;
+                color: white !important;
+                border-radius: 8px !important;
+                border: 1px solid white !important;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -42,13 +48,19 @@ def aplicar_tema():
                 color: black !important;
             }
             .stTextInput input, .stTextArea textarea, .stSelectbox div {
-                background-color: #ffffff !important;
+                background-color: white !important;
                 color: black !important;
                 border: 1px solid #ccc !important;
                 border-radius: 8px;
             }
             .stSidebar {
-                background-color: #a2ded0 !important;
+                background-color: #20c997 !important;
+            }
+            .stSelectbox div[data-baseweb="select"] {
+                background-color: #ffffff !important;
+                color: black !important;
+                border-radius: 8px !important;
+                border: 1px solid #444 !important;
             }
             </style>
         """, unsafe_allow_html=True)
