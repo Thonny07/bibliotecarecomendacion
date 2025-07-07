@@ -48,7 +48,7 @@ def aplicar_tema_estilo():
             box-shadow: none !important;
         }}
         .stSidebar {{
-            background-color: #20c997 !important;
+            background-color: #a2ded0;
         }}
         .recomendacion-container {{
             background-color: rgba(200, 200, 200, 0.1);
@@ -67,46 +67,18 @@ def aplicar_tema_estilo():
             background-color: #17a88b !important;
         }}
         .estrella-container {{
-            display: flex;
-            gap: 2px;
+            display: inline-flex;
+            gap: 4px;
             margin-bottom: 8px;
         }}
         .stAlert-success p {{
             color: {color_exito} !important;
-        }}
-        .logo-img {{
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            margin: 0 auto 1rem auto;
-        }}
-        .inicio-title {{
-            font-size: 2rem;
-            font-weight: bold;
-            text-align: center;
-            color: #20c997;
-            margin-bottom: 2rem;
         }}
         </style>
     """, unsafe_allow_html=True)
 
 def pantalla_inicio(usuario):
     aplicar_tema_estilo()
-
-    # Logo y Título
-    try:
-        with open("logobiblioteca.png", "rb") as image_file:
-            encoded = base64.b64encode(image_file.read()).decode()
-            st.markdown(
-                f'<img src="data:image/png;base64,{encoded}" class="logo-img">',
-                unsafe_allow_html=True
-            )
-    except:
-        st.warning("⚠️ No se pudo cargar el logo.")
-
-    st.markdown('<div class="inicio-title">Biblioteca Alejandría</div>', unsafe_allow_html=True)
 
     with st.sidebar:
         if "modo_oscuro" not in st.session_state:
@@ -116,6 +88,15 @@ def pantalla_inicio(usuario):
         if st.button(f"{foco} Cambiar tema"):
             st.session_state.modo_oscuro = not modo
             st.rerun()
+
+    try:
+        with open("logobiblioteca.png", "rb") as image_file:
+            encoded = base64.b64encode(image_file.read()).decode()
+            st.markdown(f'<img src="data:image/png;base64,{encoded}" class="logo-img" style="display:block;margin:0 auto 10px;width:120px;height:120px;border-radius:50%;object-fit:cover;">', unsafe_allow_html=True)
+    except:
+        st.warning("⚠️ No se pudo cargar el logo.")
+
+    st.markdown('<h2 style="text-align:center;color:#20c997;margin-bottom:2rem;">Biblioteca Alejandría</h2>', unsafe_allow_html=True)
 
     st.subheader(f"Bienvenido, {usuario['nombre']} {usuario['apellido']}")
     consulta = st.text_input("Buscar libros")
@@ -195,4 +176,4 @@ def pantalla_inicio(usuario):
     elif genero == "Femenino":
         st.info("Explora novelas históricas y autoayuda.")
     else:
-        st.markdown("<div style='color: black;'>Revisa ciencia, historia, tecnología y negocios.</div>", unsafe_allow_html=True)
+        st.info("Revisa ciencia, historia, tecnología y negocios.")
