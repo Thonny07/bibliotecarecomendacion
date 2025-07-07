@@ -2,7 +2,7 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Inicializa Firebase solo una vez
+# Inicializa Firebase
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase_config.json")
     firebase_admin.initialize_app(cred)
@@ -30,19 +30,25 @@ def mostrar_perfil(usuario):
             border: 1px solid {borde};
             border-radius: 8px;
         }}
+
         .guardar-btn > button {{
-            background-color: #44bba4 !important;
+            background-color: #20c997 !important;
             color: white !important;
             font-weight: bold;
             padding: 8px 20px;
             border-radius: 8px;
             margin-top: 10px;
         }}
+        .guardar-btn > button:hover {{
+            background-color: #17a88b !important;
+        }}
+
         .correo-label {{
             font-size: 16px;
             color: {texto};
             margin-top: 15px;
         }}
+
         .mensaje-exito {{
             background-color: {fondo_mensaje};
             color: {mensaje_color};
@@ -55,7 +61,6 @@ def mostrar_perfil(usuario):
         </style>
     """, unsafe_allow_html=True)
 
-    # Contenedor central
     with st.container():
         st.markdown(
             "<div style='max-width: 800px; margin: auto; padding: 20px;'>",
@@ -64,7 +69,7 @@ def mostrar_perfil(usuario):
 
         st.title("Mi perfil")
 
-        # Datos del usuario
+        # Campos del perfil
         correo = usuario["correo"]
         nombre = st.text_input("Nombre", value=usuario["nombre"])
         apellido = st.text_input("Apellido", value=usuario["apellido"])
@@ -75,7 +80,7 @@ def mostrar_perfil(usuario):
             index=["Masculino", "Femenino", "Otro"].index(usuario.get("genero", "Otro"))
         )
 
-        # Botón de guardar
+        # Botón guardar
         st.markdown('<div class="guardar-btn">', unsafe_allow_html=True)
         if st.button("Guardar cambios"):
             datos_actualizados = {
@@ -87,11 +92,10 @@ def mostrar_perfil(usuario):
             db.collection("usuarios").document(correo).update(datos_actualizados)
             st.session_state.usuario.update(datos_actualizados)
 
-            # Mensaje de éxito
             st.markdown('<div class="mensaje-exito">Perfil actualizado correctamente</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Mostrar correo
-        st.markdown(f"<div class='correo-label'>Correo: <code>{correo}</code> (no se puede modificar)</div>", unsafe_allow_html=True)
+        # Correo sin fondo negro
+        st.markdown(f"<div class='correo-label'>Correo: {correo} (no se puede modificar)</div>", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
