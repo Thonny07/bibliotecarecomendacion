@@ -17,7 +17,9 @@ def aplicar_estilos():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
-    color_alerta = "#ffffff" if modo_oscuro else "#000000"
+    fondo_input = "#333333" if modo_oscuro else "#ffffff"
+    borde = "#20c997"
+    color_alerta = texto
 
     st.markdown(f"""
         <style>
@@ -25,12 +27,20 @@ def aplicar_estilos():
             background-color: {fondo};
             color: {texto};
         }}
-        .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] {{
-            background-color: transparent;
-            color: {texto};
-            border: 1px solid #20c997;
+        .stTextInput input,
+        .stNumberInput input,
+        .stSelectbox div[data-baseweb="select"],
+        input[type="number"] {{
+            background-color: {fondo_input};
+            color: {texto} !important;
+            border: 1px solid {borde};
             border-radius: 8px;
             padding: 8px;
+        }}
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {{
+            -webkit-appearance: none;
+            margin: 0;
         }}
         label {{
             color: {texto} !important;
@@ -98,7 +108,7 @@ def registrar_usuario():
                         "contrasena": contrasena,
                         "fecha_registro": datetime.now()
                     })
-                    st.success("Usuario registrado con éxito")
+                    st.success("✅ Usuario registrado con éxito")
                     st.session_state.vista = "login"
                     st.rerun()
 
