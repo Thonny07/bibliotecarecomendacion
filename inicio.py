@@ -31,14 +31,14 @@ def aplicar_tema_estilo():
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
     borde_input = "#ffffff" if modo_oscuro else "#44bba4"
-    boton = "#44bba4"
+    color_exito = "#000000" if not modo_oscuro else "#ffffff"
     st.markdown(f"""
         <style>
         html, body, .stApp {{
             background-color: {fondo};
             color: {texto};
         }}
-        .stTextInput input, .stTextArea textarea, .stSelectbox select {{
+        .stTextInput input, .stTextArea textarea, .stSelectbox select, .stRadio div {{
             background-color: {fondo};
             color: {texto};
             border: 1px solid {borde_input};
@@ -54,7 +54,7 @@ def aplicar_tema_estilo():
             border-radius: 8px;
         }}
         button {{
-            background-color: {boton} !important;
+            background-color: #44bba4 !important;
             color: white !important;
             border: none;
             border-radius: 5px;
@@ -64,13 +64,16 @@ def aplicar_tema_estilo():
         button:hover {{
             background-color: #379d8e !important;
         }}
-        .estrella-btn {{
-            background: none;
-            border: none;
-            font-size: 22px;
-            color: #FFD700;
-            cursor: pointer;
-            padding: 0 3px;
+        .estrella-container button {{
+            background: none !important;
+            border: none !important;
+            color: {texto};
+            font-size: 24px;
+            margin: 0 2px;
+            padding: 0;
+        }}
+        .stAlert > div {{
+            color: {color_exito};
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -136,17 +139,18 @@ def pantalla_inicio(usuario):
                         st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
                     st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
-                    estrellas = st.session_state.get(f"estrellas_{idx}", 0)
+                    st.markdown("<div class='estrella-container'>", unsafe_allow_html=True)
+                    estrellas_seleccionadas = st.session_state.get(f"estrellas_{idx}", 0)
                     cols = st.columns(5)
                     for i in range(5):
-                        if cols[i].button("★" if i < estrellas else "☆", key=f"estrella_{idx}_{i}"):
+                        if cols[i].button("★" if i < estrellas_seleccionadas else "☆", key=f"estrella_{idx}_{i}"):
                             st.session_state[f"estrellas_{idx}"] = i + 1
-                            st.rerun()
+                    st.markdown("</div>", unsafe_allow_html=True)
 
                     comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
                     if st.button("Enviar reseña", key=f"resena_{idx}"):
-                        estrellas_val = st.session_state.get(f"estrellas_{idx}", 0)
-                        guardar_reseña(usuario["correo"], libro["titulo"], estrellas_val, comentario)
+                        estrellas = st.session_state.get(f"estrellas_{idx}", 0)
+                        guardar_reseña(usuario["correo"], libro["titulo"], estrellas, comentario)
                         st.success("¡Gracias por tu reseña!")
 
                     reseñas = obtener_reseñas(libro["titulo"])
