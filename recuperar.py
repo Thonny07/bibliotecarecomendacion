@@ -7,16 +7,7 @@ from email.mime.multipart import MIMEMultipart
 import random
 import json
 
-# Inicializar Firebase
-if not firebase_admin._apps:
-    firebase_config_str = st.secrets["FIREBASE_CONFIG"]
-    firebase_config = json.loads(firebase_config_str)
-    cred = credentials.Certificate(firebase_config)
-    firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
-# Estilo dinámico
+# ---------- Aplicar estilos personalizados ----------
 def aplicar_estilos():
     oscuro = st.session_state.get("modo_oscuro", False)
     color_texto = "#ffffff" if oscuro else "#000000"
@@ -34,6 +25,10 @@ def aplicar_estilos():
         border: 1px solid {color_borde} !important;
         border-radius: 8px !important;
         padding: 0.5rem;
+    }}
+    label {{
+        color: {color_texto} !important;
+        font-weight: bold;
     }}
     .stButton > button {{
         background-color: #20c997 !important;
@@ -56,7 +51,16 @@ def aplicar_estilos():
     </style>
     """, unsafe_allow_html=True)
 
-# Enviar código al correo
+# ---------- Inicializar Firebase solo una vez ----------
+if not firebase_admin._apps:
+    firebase_config_str = st.secrets["FIREBASE_CONFIG"]
+    firebase_config = json.loads(firebase_config_str)
+    cred = credentials.Certificate(firebase_config)
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+
+# ---------- Envío de código por SMTP ----------
 def enviar_codigo_smtp(destinatario, codigo):
     try:
         remitente = st.secrets["EMAIL"]
@@ -76,7 +80,6 @@ def enviar_codigo_smtp(destinatario, codigo):
         </body>
         </html>
         """
-
         mensaje.attach(MIMEText(cuerpo, "html"))
 
         servidor = smtplib.SMTP("smtp.gmail.com", 587)
@@ -89,7 +92,7 @@ def enviar_codigo_smtp(destinatario, codigo):
         st.error(f"Error al enviar correo: {e}")
         return False
 
-# Función principal
+# ---------- Función principal ----------
 def recuperar_contrasena():
     aplicar_estilos()
     st.subheader("Recuperar contraseña")
@@ -145,7 +148,8 @@ def recuperar_contrasena():
                 else:
                     st.error("Código incorrecto")
 
-    st.markdown("---")
+    # Botón para volver al login
+    st.markdown("<hr>", unsafe_allow_html=True)
     if st.button("Volver al login"):
         st.session_state.vista = "login"
         st.session_state.codigo_enviado = False
