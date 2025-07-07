@@ -38,6 +38,20 @@ def aplicar_tema():
                 border-radius: 8px !important;
                 border: 1px solid white !important;
             }
+            button {
+                background-color: #20c997 !important;
+                color: white !important;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #17a88b !important;
+            }
+            .stAlert-success p, .stAlert-info p {
+                color: white !important;
+            }
             </style>
         """, unsafe_allow_html=True)
     else:
@@ -61,6 +75,20 @@ def aplicar_tema():
                 color: black !important;
                 border-radius: 8px !important;
                 border: 1px solid #444 !important;
+            }
+            button {
+                background-color: #20c997 !important;
+                color: white !important;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #17a88b !important;
+            }
+            .stAlert-success p, .stAlert-info p {
+                color: black !important;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -131,11 +159,11 @@ elif st.session_state.vista == "guardados":
                     st.write(libro["descripcion"])
 
             with cols[2]:
-                if st.button(f"Leer", key=f"leer_{i}"):
+                if st.button("Leer", key=f"leer_{i}"):
                     url_google = f"https://www.google.com/search?q={libro['titulo'].replace(' ', '+')}"
                     st.markdown(f"[Abrir libro en Google Books]({url_google})", unsafe_allow_html=True)
 
-                if st.button(f"Eliminar", key=f"eliminar_{i}"):
+                if st.button("Eliminar", key=f"eliminar_{i}"):
                     from acciones_libros import eliminar_libro_guardado
                     eliminar_libro_guardado(st.session_state.usuario["correo"], libro["titulo"])
                     st.success("Libro eliminado.")
