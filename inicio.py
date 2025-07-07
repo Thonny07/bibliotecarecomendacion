@@ -4,6 +4,7 @@ from acciones_libros import guardar_libro_para_usuario
 import firebase_admin
 from firebase_admin import credentials, firestore
 import random
+import base64
 
 # Inicializar Firebase
 if not firebase_admin._apps:
@@ -29,10 +30,9 @@ def mostrar_estrellas(valor):
 def aplicar_tema_estilo():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
-    texto = "#ffffff" if modo_oscuro else "#000000"
-    borde_input = "#ffffff" if modo_oscuro else "#20c997"
+    texto = "#000000"
+    borde_input = "#44bba4"
     color_exito = "#000000" if not modo_oscuro else "#ffffff"
-
     st.markdown(f"""
         <style>
         html, body, .stApp {{
@@ -40,14 +40,15 @@ def aplicar_tema_estilo():
             color: {texto};
         }}
         .stTextInput input, .stTextArea textarea, .stSelectbox select, .stRadio div {{
-            background-color: {fondo};
+            background-color: transparent;
             color: {texto};
             border: 1px solid {borde_input};
             border-radius: 8px;
             padding: 8px;
+            box-shadow: none !important;
         }}
         .stSidebar {{
-            background-color: #a2ded0;
+            background-color: #20c997 !important;
         }}
         .recomendacion-container {{
             background-color: rgba(200, 200, 200, 0.1);
@@ -65,22 +66,28 @@ def aplicar_tema_estilo():
         button:hover {{
             background-color: #17a88b !important;
         }}
-        .estrella-container button {{
-            background: none !important;
-            border: none !important;
-            color: {texto};
-            font-size: 24px;
-            margin: 0 2px;
-            padding: 0;
-        }}
-        .stAlert > div {{
-            color: {color_exito};
-        }}
-        .logo-header {{
+        .estrella-container {{
             display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 2px;
+            margin-bottom: 8px;
+        }}
+        .stAlert-success p {{
+            color: {color_exito} !important;
+        }}
+        .logo-img {{
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto 1rem auto;
+        }}
+        .inicio-title {{
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #20c997;
+            margin-bottom: 2rem;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -88,16 +95,18 @@ def aplicar_tema_estilo():
 def pantalla_inicio(usuario):
     aplicar_tema_estilo()
 
-    # ✅ Logo y título alineados
-    st.markdown(
-        """
-        <div class="logo-header">
-            <img src="https://raw.githubusercontent.com/tuusuario/tu-repo/main/logobiblioteca.png" alt="Logo" width="60">
-            <h1 style='margin-bottom: 0;'>Biblioteca</h1>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    # Logo y Título
+    try:
+        with open("logobiblioteca.png", "rb") as image_file:
+            encoded = base64.b64encode(image_file.read()).decode()
+            st.markdown(
+                f'<img src="data:image/png;base64,{encoded}" class="logo-img">',
+                unsafe_allow_html=True
+            )
+    except:
+        st.warning("⚠️ No se pudo cargar el logo.")
+
+    st.markdown('<div class="inicio-title">Biblioteca Alejandría</div>', unsafe_allow_html=True)
 
     with st.sidebar:
         if "modo_oscuro" not in st.session_state:
@@ -157,13 +166,12 @@ def pantalla_inicio(usuario):
                         st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
                     st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
-                    st.markdown("<div class='estrella-container'>", unsafe_allow_html=True)
+                    st.markdown('<div class="estrella-container">', unsafe_allow_html=True)
                     estrellas_seleccionadas = st.session_state.get(f"estrellas_{idx}", 0)
-                    cols = st.columns(5)
                     for i in range(5):
-                        if cols[i].button("★" if i < estrellas_seleccionadas else "☆", key=f"estrella_{idx}_{i}"):
+                        if st.button("★" if i < estrellas_seleccionadas else "☆", key=f"estrella_{idx}_{i}"):
                             st.session_state[f"estrellas_{idx}"] = i + 1
-                    st.markdown("</div>", unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
 
                     comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
                     if st.button("Enviar reseña", key=f"resena_{idx}"):
@@ -187,4 +195,4 @@ def pantalla_inicio(usuario):
     elif genero == "Femenino":
         st.info("Explora novelas históricas y autoayuda.")
     else:
-        st.info("Revisa ciencia, historia, tecnología y negocios.")
+        st.markdown("<div style='color: black;'>Revisa ciencia, historia, tecnología y negocios.</div>", unsafe_allow_html=True)
