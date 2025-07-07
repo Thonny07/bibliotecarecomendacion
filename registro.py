@@ -2,7 +2,7 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
-import json  # Necesario para convertir el secret
+import json
 
 # Inicializa Firebase solo una vez
 if not firebase_admin._apps:
@@ -12,43 +12,99 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+# Aplicar estilos según el tema
+def aplicar_estilos():
+    modo_oscuro = st.session_state.get("modo_oscuro", False)
+    fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
+    texto = "#ffffff" if modo_oscuro else "#000000"
+    color_alerta = "#ffffff" if modo_oscuro else "#000000"
+
+    st.markdown(f"""
+        <style>
+        html, body, .stApp {{
+            background-color: {fondo};
+            color: {texto};
+        }}
+        .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] {{
+            background-color: transparent;
+            color: {texto};
+            border: 1px solid #20c997;
+            border-radius: 8px;
+            padding: 8px;
+        }}
+        label {{
+            color: {texto} !important;
+            font-weight: bold;
+        }}
+        .stButton>button {{
+            background-color: #20c997 !important;
+            color: white !important;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+        }}
+        .stButton>button:hover {{
+            background-color: #17a88b !important;
+        }}
+        .mensaje-personalizado {{
+            color: {color_alerta};
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }}
+        .botones-centrados {{
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+
 # ---------- REGISTRO ----------
 def registrar_usuario():
-    st.subheader("📝 Registro de nuevo usuario")
+    aplicar_estilos()
+    st.subheader("Registro de nuevo usuario")
 
     nombre = st.text_input("Nombre")
     apellido = st.text_input("Apellido")
     edad = st.number_input("Edad", min_value=10, max_value=100, step=1)
     genero = st.selectbox("Género", ["Masculino", "Femenino", "Otro"])
     correo = st.text_input("Correo electrónico")
+    contrasena = st.text_input("Contraseña", type="password")
 
-    col1, col2 = st.columns([4, 1])
+    st.markdown('<div class="botones-centrados">', unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
     with col1:
-        contrasena = st.text_input("Contraseña", type="password")
-    with col2:
-        mostrar = st.checkbox("👁️", help="Mostrar contraseña")
-    if mostrar:
-        contrasena = st.text_input("Contraseña (visible)", type="default")
-
-    if st.button("Registrar"):
-        if len(contrasena) < 6:
-            st.error("⚠️ La contraseña debe tener al menos 6 caracteres.")
-        elif not nombre or not apellido or not correo:
-            st.warning("⚠️ Por favor completa todos los campos obligatorios.")
-        else:
-            doc_ref = db.collection("usuarios").document(correo)
-            if doc_ref.get().exists:
-                st.warning("⚠️ Este correo ya está registrado.")
+        if st.button("Registrar"):
+            if len(contrasena) < 6:
+                st.markdown('<div class="mensaje-personalizado">La contraseña debe tener al menos 6 caracteres.</div>', unsafe_allow_html=True)
+            elif not nombre or not apellido or not correo:
+                st.markdown('<div class="mensaje-personalizado">Por favor completa todos los campos obligatorios.</div>', unsafe_allow_html=True)
             else:
-                doc_ref.set({
-                    "nombre": nombre,
-                    "apellido": apellido,
-                    "edad": edad,
-                    "genero": genero,
-                    "correo": correo,
-                    "contrasena": contrasena,
-                    "fecha_registro": datetime.now()
-                })
-                st.success("✅ Usuario registrado con éxito")
-                st.session_state.vista = "login"
-                st.rerun()
+                doc_ref = db.collection("usuarios").document(correo)
+                if doc_ref.get().exists:
+                    st.markdown('<div class="mensaje-personalizado">Este correo ya está registrado.</div>', unsafe_allow_html=True)
+                else:
+                    doc_ref.set({
+                        "nombre": nombre,
+                        "apellido": apellido,
+                        "edad": edad,
+                        "genero": genero,
+                        "correo": correo,
+                        "contrasena": contrasena,
+                        "fecha_registro": datetime.now()
+                    })
+                    st.success("Usuario registrado con éxito")
+                    st.session_state.vista = "login"
+                    st.rerun()
+
+    with col2:
+        if st.button("Volver al login"):
+            st.session_state.vista = "login"
+            st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)
