@@ -31,8 +31,8 @@ def aplicar_tema_estilo():
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
     borde_input = "#ffffff" if modo_oscuro else "#20c997"
-
     color_exito = "#000000" if not modo_oscuro else "#ffffff"
+
     st.markdown(f"""
         <style>
         html, body, .stApp {{
@@ -76,11 +76,23 @@ def aplicar_tema_estilo():
         .stAlert > div {{
             color: {color_exito};
         }}
+        .encabezado {{
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
 def pantalla_inicio(usuario):
     aplicar_tema_estilo()
+
+    # Encabezado con logo y nombre de la biblioteca
+    col_logo, col_titulo = st.columns([1, 8])
+    with col_logo:
+        st.image("logobiblioteca.png", width=60)
+    with col_titulo:
+        st.markdown("<h1 style='margin-bottom: 10px;'>Biblioteca</h1>", unsafe_allow_html=True)
 
     with st.sidebar:
         if "modo_oscuro" not in st.session_state:
