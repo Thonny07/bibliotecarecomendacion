@@ -63,17 +63,6 @@ def aplicar_tema_estilo():
         button:hover {{
             background-color: #379d8e !important;
         }}
-        /* Estrellas sin fondo ni borde */
-        .estrella-btn button {{
-            background: none !important;
-            border: none !important;
-            color: #f5c518 !important;
-            font-size: 22px !important;
-            padding: 0px 4px !important;
-        }}
-        .estrella-btn button:hover {{
-            transform: scale(1.2);
-        }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -84,7 +73,7 @@ def pantalla_inicio(usuario):
         if "modo_oscuro" not in st.session_state:
             st.session_state.modo_oscuro = False
         modo = st.session_state.modo_oscuro
-        foco = "🔆" if not modo else "🌙"
+        foco = "🇶" if not modo else "🌙"
         if st.button(f"{foco} Cambiar tema"):
             st.session_state.modo_oscuro = not modo
             st.rerun()
@@ -137,14 +126,26 @@ def pantalla_inicio(usuario):
                     if libro.get("enlace"):
                         st.markdown(f"<a href='{libro['enlace']}' target='_blank'><button>Leer ahora</button></a>", unsafe_allow_html=True)
 
-                    # Estrellas de calificación más juntas y sin fondo
-                    st.markdown("<strong>Califica este libro:</strong>", unsafe_allow_html=True)
-                    st.markdown('<div style="display:flex;gap:0;" class="estrella-btn">', unsafe_allow_html=True)
+                    # Mostrar estrellas como enlaces
                     estrellas_seleccionadas = st.session_state.get(f"estrellas_{idx}", 0)
-                    for i in range(5):
-                        if st.button("★" if i < estrellas_seleccionadas else "☆", key=f"estrella_{idx}_{i}"):
-                            st.session_state[f"estrellas_{idx}"] = i + 1
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div style='display: flex; gap: 6px; font-size: 28px;'>
+                        {''.join(
+                            f"<a href='?estrella_click={i}&libro_idx={idx}' style='text-decoration:none;color:#f5c518;'>{'\u2605' if i < estrellas_seleccionadas else '\u2606'}</a>"
+                            for i in range(1, 6)
+                        )}
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    # Capturar clic en estrella
+                    params = st.experimental_get_query_params()
+                    if "estrella_click" in params and "libro_idx" in params:
+                        clicked_idx = int(params["libro_idx"][0])
+                        if clicked_idx == idx:
+                            nueva = int(params["estrella_click"][0])
+                            st.session_state[f"estrellas_{idx}"] = nueva
+                            st.experimental_set_query_params()
+                            st.rerun()
 
                     comentario = st.text_area("Comentario (opcional)", key=f"comentario_{idx}")
                     if st.button("Enviar reseña", key=f"resena_{idx}"):
