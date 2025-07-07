@@ -130,7 +130,10 @@ def recuperar_contrasena():
                         st.session_state.codigo_enviado = True
                         st.rerun()
                 else:
-                    st.error("Este correo no está registrado")
+                    st.markdown(
+                        f'<div class="mensaje-personalizado">Este correo no está registrado</div>',
+                        unsafe_allow_html=True
+                    )
             elif volver:
                 st.session_state.vista = "login"
                 st.rerun()
