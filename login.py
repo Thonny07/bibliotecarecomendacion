@@ -129,7 +129,7 @@ def login():
         st.warning("⚠️ No se pudo cargar el logo.")
 
     # ---------- TÍTULO ----------
-    st.markdown('<div class="login-title">Biblioteca Alejandría</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-title">Biblioteca Alexandrina</div>', unsafe_allow_html=True)
 
     # ---------- CAMPOS ----------
     correo = st.text_input("Correo electrónico", key="correo")
