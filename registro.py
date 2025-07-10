@@ -4,7 +4,6 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 import json
 
-# Inicializa Firebase solo una vez
 if not firebase_admin._apps:
     firebase_config_str = st.secrets["FIREBASE_CONFIG"]
     firebase_config = json.loads(firebase_config_str)
@@ -12,7 +11,6 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-# Aplicar estilos según el tema
 def aplicar_estilos():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
@@ -73,7 +71,6 @@ def aplicar_estilos():
         </style>
     """, unsafe_allow_html=True)
 
-# ---------- REGISTRO ----------
 def registrar_usuario():
     aplicar_estilos()
     st.subheader("Registro de nuevo usuario")

@@ -3,7 +3,6 @@ import requests
 def buscar_libros_api(consulta, idioma="Todos", pais="Todos"):
     url = f"https://www.googleapis.com/books/v1/volumes?q={consulta}"
 
-    # Agregar filtros si se seleccionan
     if idioma != "Todos":
         url += f"&langRestrict={idioma}"
     if pais != "Todos":
@@ -30,7 +29,7 @@ def buscar_libros_api(consulta, idioma="Todos", pais="Todos"):
                 "autores": ", ".join(autores),
                 "imagen": imagen,
                 "descripcion": descripcion,
-                "enlace": enlace  # ✅ Incluido en cada resultado
+                "enlace": enlace
             })
 
         return libros

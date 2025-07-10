@@ -4,7 +4,6 @@ from firebase_admin import credentials, firestore
 import json
 import base64
 
-# ---------- INICIALIZAR FIREBASE ----------
 if not firebase_admin._apps:
     try:
         firebase_config_str = st.secrets["FIREBASE_CONFIG"]
@@ -17,12 +16,10 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# ---------- LOGIN ----------
 def login():
     acceso = False
     usuario = None
 
-    # ---------- CSS PERSONALIZADO ----------
     st.markdown("""
         <style>
         /* OCULTAR HEADERS Y RECTÁNGULOS RESIDUALES */
@@ -114,10 +111,8 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
-    # ---------- CONTENEDOR PRINCIPAL ----------
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
 
-    # ---------- LOGO ----------
     try:
         with open("logobiblioteca.png", "rb") as image_file:
             encoded = base64.b64encode(image_file.read()).decode()
@@ -128,14 +123,11 @@ def login():
     except:
         st.warning("⚠️ No se pudo cargar el logo.")
 
-    # ---------- TÍTULO ----------
     st.markdown('<div class="login-title">Biblioteca Alexandrina</div>', unsafe_allow_html=True)
 
-    # ---------- CAMPOS ----------
     correo = st.text_input("Correo electrónico", key="correo")
     contrasena = st.text_input("Contraseña", type="password", key="contrasena")
 
-    # ---------- BOTONES ----------
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button("Iniciar sesión"):

@@ -6,7 +6,6 @@ from firebase_admin import credentials, firestore
 import random
 import base64
 
-# Inicializar Firebase
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase_config.json")
     firebase_admin.initialize_app(cred)
@@ -85,7 +84,6 @@ def pantalla_inicio(usuario):
             st.session_state.modo_oscuro = not modo
             st.rerun()
 
-    # Logo
     try:
         with open("logobiblioteca.png", "rb") as image_file:
             encoded = base64.b64encode(image_file.read()).decode()

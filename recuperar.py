@@ -7,7 +7,6 @@ from email.mime.multipart import MIMEMultipart
 import random
 import json
 
-# -------- Inicializar Firebase solo una vez --------
 if not firebase_admin._apps:
     firebase_config_str = st.secrets["FIREBASE_CONFIG"]
     firebase_config = json.loads(firebase_config_str)
@@ -16,7 +15,6 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# -------- Estilos por tema --------
 def aplicar_estilos():
     modo_oscuro = st.session_state.get("modo_oscuro", False)
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
@@ -63,7 +61,6 @@ def aplicar_estilos():
         </style>
     """, unsafe_allow_html=True)
 
-# -------- Envío de código por SMTP --------
 def enviar_codigo_smtp(destinatario, codigo):
     try:
         remitente = st.secrets["EMAIL"]
@@ -96,7 +93,6 @@ def enviar_codigo_smtp(destinatario, codigo):
         st.error(f"Error al enviar correo: {e}")
         return False
 
-# -------- Función principal --------
 def recuperar_contrasena():
     aplicar_estilos()
     st.subheader("Recuperar contraseña")
@@ -108,7 +104,6 @@ def recuperar_contrasena():
     if "codigo_verificacion" not in st.session_state:
         st.session_state.codigo_verificacion = ""
 
-    # Paso 1: Enviar código
     if not st.session_state.codigo_enviado:
         with st.form("form_enviar_codigo"):
             correo = st.text_input("Ingrese su correo registrado")
@@ -138,7 +133,6 @@ def recuperar_contrasena():
                 st.session_state.vista = "login"
                 st.rerun()
 
-    # Paso 2: Verificar código
     else:
         st.markdown("### Verifica tu código y crea una nueva contraseña")
         st.markdown(

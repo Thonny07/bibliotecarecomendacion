@@ -2,24 +2,20 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Inicializa Firebase
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase_config.json")
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 def mostrar_perfil(usuario):
-    # Detectar modo oscuro
     modo_oscuro = st.session_state.get("modo_oscuro", False)
 
-    # Colores según el tema
     fondo = "#1e1e1e" if modo_oscuro else "#ffffff"
     texto = "#ffffff" if modo_oscuro else "#000000"
     borde = "#44bba4"
     mensaje_color = texto
     fondo_mensaje = "#d4edda" if not modo_oscuro else "#2e2e2e"
 
-    # Estilos personalizados
     st.markdown(f"""
         <style>
         .stTextInput > div > input,
@@ -72,7 +68,6 @@ def mostrar_perfil(usuario):
 
         st.title("Mi perfil")
 
-        # Campos del perfil
         correo = usuario["correo"]
         nombre = st.text_input("Nombre", value=usuario["nombre"])
         apellido = st.text_input("Apellido", value=usuario["apellido"])
@@ -83,7 +78,6 @@ def mostrar_perfil(usuario):
             index=["Masculino", "Femenino", "Otro"].index(usuario.get("genero", "Otro"))
         )
 
-        # Botón guardar
         if st.button("Guardar cambios"):
             datos_actualizados = {
                 "nombre": nombre,
@@ -96,7 +90,6 @@ def mostrar_perfil(usuario):
 
             st.markdown('<div class="mensaje-exito">Perfil actualizado correctamente</div>', unsafe_allow_html=True)
 
-        # Correo sin fondo negro
         st.markdown(f"<div class='correo-label'>Correo: {correo} (no se puede modificar)</div>", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)

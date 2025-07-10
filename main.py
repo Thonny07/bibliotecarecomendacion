@@ -7,14 +7,11 @@ import recuperar
 import perfil
 from acciones_libros import obtener_libros_guardados
 
-# Configuración de la página
 st.set_page_config(layout="wide")
 
-# Estado inicial del tema
 if "modo_oscuro" not in st.session_state:
     st.session_state.modo_oscuro = False
 
-# Aplicar tema visual
 def aplicar_tema():
     if st.session_state.modo_oscuro:
         st.markdown("""
@@ -95,13 +92,11 @@ def aplicar_tema():
 
 aplicar_tema()
 
-# Estado inicial de navegación
 if "vista" not in st.session_state:
     st.session_state.vista = "login"
 if "usuario" not in st.session_state:
     st.session_state.usuario = None
 
-# Menú lateral si inició sesión
 if st.session_state.usuario and st.session_state.vista not in ["recuperar", "registro"]:
     st.sidebar.title("Menú")
     opcion = st.sidebar.selectbox("Opciones", ["Inicio", "Mis libros guardados", "Mi perfil", "Cerrar sesión"])
@@ -118,7 +113,6 @@ if st.session_state.usuario and st.session_state.vista not in ["recuperar", "reg
         st.success("Sesión cerrada correctamente.")
         st.rerun()
 
-# Control de navegación
 if st.session_state.vista == "login":
     acceso, usuario = login.login()
     if acceso:
